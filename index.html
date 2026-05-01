@@ -1435,11 +1435,14 @@ document.getElementById('btn-newtab').addEventListener('click', () => openInTab(
 
 function openInTab(andPrint) {
   // The cloned page lives at a blob:// origin with its own localStorage, so we ship state
-  // inline as a seed <script> that runs before the main script reads localStorage.
-  // safe() escapes HTML script-end and comment sequences so embedded data can't break out.
+  // inline as a seed script that runs before the main script reads localStorage.
+  // safe() escapes script-end and HTML-comment sequences so embedded data cannot break out.
+  // We use the JS escape < for `<` here so the HTML5 parser never sees the literal
+  // byte sequences that would push it into script-data-escaped mode and prevent the
+  // closing tag of this very script from being recognized.
   const safe = obj => JSON.stringify(JSON.stringify(obj))
-    .replace(/<\/script/gi, '<\\/script')
-    .replace(/<!--/g, '<\\!--');
+    .replace(/<\/script/gi, '\\u003c/script')
+    .replace(/<!--/g, '\\u003c!--');
 
   const fields = JSON.parse(localStorage.getItem(LS_FIELDS) || '{}');
   const checks = JSON.parse(localStorage.getItem(LS_CHECKS) || '{}');
@@ -1448,10 +1451,10 @@ function openInTab(andPrint) {
     'localStorage.setItem(' + JSON.stringify(LS_STATE)  + ',' + safe(state)  + ');' +
     'localStorage.setItem(' + JSON.stringify(LS_FIELDS) + ',' + safe(fields) + ');' +
     'localStorage.setItem(' + JSON.stringify(LS_CHECKS) + ',' + safe(checks) + ');' +
-    '}catch(e){}<\/script>';
+    '}catch(e){}</script>';
 
   // Render functions are idempotent (they clear before populating), so duplicates won't stack
-  // when the cloned <script> re-runs against the snapshotted DOM. Doctype is prepended because
+  // when the cloned script re-runs against the snapshotted DOM. Doctype is prepended because
   // outerHTML drops it — without it the new tab loads in quirks mode.
   const html = '<!DOCTYPE html>\n' +
     document.documentElement.outerHTML.replace('</head>', seed + '</head>');
