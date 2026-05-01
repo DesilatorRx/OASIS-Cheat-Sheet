@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OASIS-E M & GG Cheat Sheet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap');
+
+  :root {
+    --navy: #1a2744;
+    --teal: #1d6a6a;
+    --teal-light: #e6f4f4;
+    --amber: #c8620a;
+    --amber-light: #fdf3e8;
+    --slate: #3d4f6b;
+    --muted: #6b7a96;
+    --line: #dde3ec;
+    --paper: #f7f8fc;
+    --white: #ffffff;
+    --selected-bg: #1d6a6a;
+    --pill-bg: #edf0f7;
+    --pill-border: #c8cfe0;
+    --err-red: #dc2626;
+    --err-bg: #fef2f2;
+    --err-border: #fca5a5;
+    --warn-yellow: #d97706;
+    --warn-bg: #fffbeb;
+    --warn-border: #fcd34d;
+    --soft-blue: #2563eb;
+    --soft-bg: #eff6ff;
+    --soft-border: #93c5fd;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--navy); font-size: 11px; line-height: 1.4; }
+
+  .page-header { background: var(--navy); color: white; padding: 14px 20px 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; }
+  .page-header h1 span { color: #7dd3d3; }
+  .page-header .subtitle { font-size: 10px; color: #94a3b8; margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .header-meta { text-align: right; font-size: 9.5px; color: #94a3b8; font-family: 'DM Mono', monospace; line-height: 1.7; }
+  .pt-fields { display: flex; gap: 12px; flex-wrap: wrap; background: #253357; padding: 7px 20px; font-size: 10px; color: #94a3b8; font-family: 'DM Mono', monospace; }
+  .pt-field { display: flex; align-items: center; gap: 5px; }
+  .pt-field label { color: #64748b; font-size: 9px; white-space: nowrap; }
+  .pt-field input {
+    background: transparent; border: none;
+    border-bottom: 1px solid #4a5568;
+    color: #e2e8f0; font-family: 'DM Mono', monospace; font-size: 10px;
+    width: 110px; outline: none; padding: 1px 2px; caret-color: #7dd3d3;
+  }
+  .pt-field input::placeholder { color: #4a5568; }
+  .pt-field input:focus { border-bottom-color: #7dd3d3; }
+
+  .toolbar { background: #253357; display: flex; align-items: center; gap: 10px; padding: 6px 16px; flex-wrap: wrap; }
+  .toolbar button { background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 4px 12px; font-size: 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .toolbar button:hover { background: rgba(255,255,255,0.22); }
+  .toolbar span { font-size: 9.5px; color: #94a3b8; font-family: 'DM Mono', monospace; }
+
+  /* ── CONFLICT PANEL ── */
+  #conflict-panel { position: sticky; top: 0; z-index: 100; background: white; border-bottom: 2px solid var(--line); display: none; }
+  #conflict-panel.has-errors  { border-bottom-color: var(--err-red);    display: block; }
+  #conflict-panel.has-warnings{ border-bottom-color: var(--warn-yellow); display: block; }
+  #conflict-panel.has-soft    { border-bottom-color: var(--soft-blue);  display: block; }
+  .conflict-header { display: flex; align-items: center; gap: 8px; padding: 6px 14px; cursor: pointer; user-select: none; background: #fafbff; }
+  .conflict-header:hover { background: #f0f4ff; }
+  .c-badge { display: inline-flex; align-items: center; gap: 4px; border-radius: 12px; padding: 2px 9px; font-size: 10px; font-weight: 600; font-family: 'DM Mono', monospace; }
+  .c-badge.err  { background: var(--err-bg);  color: var(--err-red);    border: 1px solid var(--err-border); }
+  .c-badge.warn { background: var(--warn-bg); color: var(--warn-yellow); border: 1px solid var(--warn-border); }
+  .c-badge.soft { background: var(--soft-bg); color: var(--soft-blue);   border: 1px solid var(--soft-border); }
+  .conflict-toggle { margin-left: auto; font-size: 10px; color: var(--muted); }
+  .conflict-list { padding: 0 14px 8px; display: none; }
+  .conflict-list.open { display: block; }
+  .c-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 8px; margin-bottom: 3px; border-radius: 5px; border-left: 3px solid transparent; font-size: 10px; }
+  .c-item.err  { background: var(--err-bg);  border-left-color: var(--err-red); }
+  .c-item.warn { background: var(--warn-bg); border-left-color: var(--warn-yellow); }
+  .c-item.soft { background: var(--soft-bg); border-left-color: var(--soft-blue); }
+  .c-rule { font-size: 8.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1px; }
+  .c-msg { color: var(--navy); line-height: 1.4; }
+  .c-msg strong { font-family: 'DM Mono', monospace; font-size: 9.5px; }
+
+  /* ── CONFLICT HIGHLIGHTS ON ITEMS ── */
+  .item-card.fl-err  { box-shadow: 0 0 0 2px rgba(220,38,38,0.4);  position: relative; z-index: 1; }
+  .item-card.fl-warn { box-shadow: 0 0 0 2px rgba(217,119,6,0.4);  position: relative; z-index: 1; }
+  .item-card.fl-soft { box-shadow: 0 0 0 2px rgba(37,99,235,0.35); position: relative; z-index: 1; }
+  .item-card.fl-err  .item-code { color: var(--err-red)    !important; }
+  .item-card.fl-warn .item-code { color: var(--warn-yellow) !important; }
+  .item-card.fl-soft .item-code { color: var(--soft-blue)   !important; }
+
+  /* ── LAYOUT ── */
+  .section-header { background: var(--teal); color: white; padding: 6px 16px; font-family: 'Fraunces', serif; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .section-header.m-color { background: #7c3d0f; }
+  .section-header .badge { background: rgba(255,255,255,0.2); border-radius: 3px; padding: 1px 7px; font-family: 'DM Mono', monospace; font-size: 11px; }
+  .section-header .desc { font-size: 10.5px; font-weight: 400; opacity: 0.85; font-family: 'DM Sans', sans-serif; }
+
+  .items-grid { display: grid; grid-template-columns: 1fr 1fr; border-left: 3px solid var(--teal); }
+  .items-grid.m-border { border-left-color: var(--amber); }
+  .item-card { padding: 7px 12px 8px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); background: var(--white); transition: box-shadow 0.2s; }
+  .item-card:nth-child(even) { background: var(--paper); }
+  .item-card.full-width { grid-column: 1 / -1; background: var(--white); }
+  .item-code { font-family: 'DM Mono', monospace; font-size: 9.5px; font-weight: 500; color: var(--teal); letter-spacing: 0.05em; margin-bottom: 1px; transition: color 0.2s; }
+  .item-code.m-code { color: var(--amber); }
+  .item-label { font-weight: 600; font-size: 10.5px; color: var(--navy); margin-bottom: 5px; line-height: 1.3; }
+
+  .scores { display: flex; flex-wrap: wrap; gap: 3px; }
+  .pill { display: inline-flex; flex-direction: column; align-items: center; background: var(--pill-bg); border: 1.5px solid var(--pill-border); border-radius: 5px; padding: 3px 7px; cursor: pointer; min-width: 38px; text-align: center; user-select: none; transition: all 0.12s; }
+  .pill:hover { border-color: var(--teal); background: var(--teal-light); }
+  .pill.selected { background: var(--selected-bg); border-color: var(--selected-bg); color: white; }
+  .pill.selected .pill-code { color: rgba(255,255,255,0.75); }
+  .pill.selected .pill-desc { color: white; }
+  .pill-code { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--slate); }
+  .pill-desc { font-size: 8px; color: var(--muted); margin-top: 1px; line-height: 1.2; max-width: 62px; text-align: center; }
+  .pill.wide { min-width: 72px; }
+  .pill.m-style:hover { border-color: var(--amber); background: var(--amber-light); }
+  .pill.m-style.selected { background: var(--amber); border-color: var(--amber); }
+
+  .legend-bar { background: var(--teal-light); border-left: 3px solid var(--teal); padding: 6px 14px; display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .legend-title { font-size: 9px; font-weight: 600; color: var(--teal); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; width: 100%; margin-bottom: 2px; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 9.5px; }
+  .lcode { font-family: 'DM Mono', monospace; font-weight: 500; background: var(--teal); color: white; border-radius: 3px; padding: 0 5px; font-size: 9px; }
+
+  .gg-table-wrap { overflow-x: auto; }
+  .gg-table { width: 100%; border-collapse: collapse; font-size: 9.5px; }
+  .gg-table th { background: #253357; color: white; font-family: 'DM Mono', monospace; font-size: 8.5px; padding: 4px 5px; text-align: center; white-space: nowrap; }
+  .gg-table th.row-h { text-align: left; font-family: 'DM Sans', sans-serif; font-size: 9px; min-width: 140px; }
+  .gg-table td { border: 1px solid var(--line); padding: 3px 4px; vertical-align: middle; }
+  .gg-table td.row-label { font-weight: 500; color: var(--navy); font-size: 9.5px; background: #f0f4f9 !important; }
+  .gg-table td.row-sub { font-size: 8.5px; padding-left: 14px; color: var(--slate); }
+  .gg-table td.score-cell { text-align: center; cursor: pointer; min-width: 26px; transition: background 0.1s; }
+  .gg-table td.score-cell:hover { background: var(--teal-light) !important; }
+  .gg-table td.score-cell.sel { background: var(--teal) !important; color: white; font-weight: 600; }
+  .gg-table td.score-cell .dot { width: 16px; height: 16px; border: 1.5px solid var(--pill-border); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 7.5px; font-family: 'DM Mono', monospace; font-weight: 500; color: var(--slate); }
+  .gg-table td.score-cell.sel .dot { background: white; border-color: white; color: var(--teal); }
+  /* GG row conflict highlights */
+  .gg-table tr.gg-fl-err td  { background: #fff0f0 !important; }
+  .gg-table tr.gg-fl-warn td { background: #fffbeb !important; }
+  .gg-table tr.gg-fl-soft td { background: #eff6ff !important; }
+  .gg-table tr.gg-fl-err  td.row-label { color: var(--err-red); }
+  .gg-table tr.gg-fl-warn td.row-label { color: var(--warn-yellow); }
+  .gg-table tr.gg-fl-soft td.row-label { color: var(--soft-blue); }
+
+  .sub-header { background: #f0f4f9; border-bottom: 1px solid var(--line); border-left: 3px solid var(--teal); padding: 4px 12px; font-size: 9.5px; font-weight: 600; color: var(--slate); text-transform: uppercase; letter-spacing: 0.07em; font-family: 'DM Mono', monospace; grid-column: 1 / -1; }
+  .sub-header.m-sub { border-left-color: var(--amber); }
+
+  .check-group { display: flex; flex-wrap: wrap; gap: 3px; }
+  .check-pill { display: inline-flex; align-items: center; gap: 4px; background: var(--pill-bg); border: 1.5px solid var(--pill-border); border-radius: 4px; padding: 3px 8px; cursor: pointer; font-size: 9.5px; color: var(--slate); user-select: none; transition: all 0.12s; }
+  .check-pill:hover { border-color: var(--amber); background: var(--amber-light); }
+  .check-pill.checked { background: var(--amber); border-color: var(--amber); color: white; }
+  .check-pill .cbox { width: 10px; height: 10px; border: 1.5px solid currentColor; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 7px; flex-shrink: 0; }
+
+  .note { font-size: 8.5px; color: var(--muted); font-style: italic; margin-top: 3px; padding: 3px 10px; }
+  .spacer { height: 8px; background: var(--paper); }
+
+  @media print {
+    body { background: white; font-size: 9px; }
+    .no-print { display: none !important; }
+    #conflict-panel { position: static !important; }
+    #conflict-panel.has-errors, #conflict-panel.has-warnings, #conflict-panel.has-soft { display: block !important; }
+    .conflict-list { display: block !important; }
+    .pt-field input { color: #1a2744 !important; border-bottom-color: #94a3b8 !important; }
+    .page-header, .pt-fields, .section-header, .sub-header, .legend-bar,
+    .pill.selected, .pill.m-style.selected, .gg-table th,
+    .gg-table td.score-cell.sel, .check-pill.checked,
+    .c-item.err, .c-item.warn, .c-item.soft,
+    .item-card.fl-err, .item-card.fl-warn, .item-card.fl-soft,
+    .gg-table tr.gg-fl-err td, .gg-table tr.gg-fl-warn td, .gg-table tr.gg-fl-soft td
+    { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { margin: 0.4in; size: letter; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>OASIS-E <span>M & GG</span> Cheat Sheet</h1>
+    <div class="subtitle">OUTCOME AND ASSESSMENT INFORMATION SET — HOME HEALTH EDITION</div>
+  </div>
+  <div class="header-meta">Date: ________________<br>Clinician: ________________<br>Visit Type: SOC / ROC / F/U / D/C</div>
+</div>
+
+<div class="toolbar no-print">
+  <button id="btn-print">🖨 Print / Save PDF</button>
+  <button id="btn-newtab">↗ Open in New Tab</button>
+  <button onclick="clearAll()">↺ Clear All</button>
+  <span>Click scores to select · Conflicts flag automatically</span>
+</div>
+
+<div class="pt-fields">
+  <div class="pt-field"><label>PATIENT:</label><input id="pt-patient" type="text" placeholder="Last, First" autocomplete="off"></div>
+  <div class="pt-field"><label>MRN:</label><input id="pt-mrn" type="text" placeholder="MRN" autocomplete="off"></div>
+  <div class="pt-field"><label>DOB:</label><input id="pt-dob" type="text" placeholder="MM/DD/YYYY" autocomplete="off"></div>
+  <div class="pt-field"><label>PHYSICIAN:</label><input id="pt-physician" type="text" placeholder="Physician" autocomplete="off"></div>
+  <div class="pt-field"><label>AGENCY:</label><input id="pt-agency" type="text" placeholder="Agency" autocomplete="off"></div>
+</div>
+
+<!-- ══ CONFLICT PANEL ══ -->
+<div id="conflict-panel">
+  <div class="conflict-header" onclick="toggleConflicts()">
+    <span id="conflict-badges"></span>
+    <span style="margin-left:6px;font-size:10px;color:var(--muted);" id="conflict-note"></span>
+    <span class="conflict-toggle" id="conflict-toggle-lbl">▼ Show details</span>
+  </div>
+  <div class="conflict-list" id="conflict-list"></div>
+</div>
+
+<div class="spacer"></div>
+
+<!-- ══════════ GG ══════════ -->
+<div class="section-header">
+  <span class="badge">GG</span><span>Functional Abilities and Goals</span>
+  <span class="desc">— Self-Care &amp; Mobility</span>
+</div>
+
+<div class="legend-bar">
+  <div class="legend-title">GG Functional Ability Codes</div>
+  <div class="legend-item"><span class="lcode">06</span> Independent</div>
+  <div class="legend-item"><span class="lcode">05</span> Setup/Clean-up Assist</div>
+  <div class="legend-item"><span class="lcode">04</span> Supervision/Touch Assist</div>
+  <div class="legend-item"><span class="lcode">03</span> Partial/Moderate Assist</div>
+  <div class="legend-item"><span class="lcode">02</span> Substantial/Max Assist</div>
+  <div class="legend-item"><span class="lcode">01</span> Dependent</div>
+  <div class="legend-item"><span class="lcode">07</span> Refused</div>
+  <div class="legend-item"><span class="lcode">09</span> N/A</div>
+  <div class="legend-item"><span class="lcode">10</span> Not Attempted — Environmental</div>
+  <div class="legend-item"><span class="lcode">88</span> Not Attempted — Medical/Safety</div>
+</div>
+
+<div class="items-grid">
+  <div class="sub-header">GG0100 — Prior Functioning: Everyday Activities</div>
+  <div class="item-card" data-item="GG0100A"><div class="item-code">GG0100A</div><div class="item-label">Self-Care</div><div class="scores" id="GG0100A"></div></div>
+  <div class="item-card" data-item="GG0100B"><div class="item-code">GG0100B</div><div class="item-label">Indoor Mobility (Ambulation)</div><div class="scores" id="GG0100B"></div></div>
+  <div class="item-card" data-item="GG0100C"><div class="item-code">GG0100C</div><div class="item-label">Stairs</div><div class="scores" id="GG0100C"></div></div>
+  <div class="item-card" data-item="GG0100D"><div class="item-code">GG0100D</div><div class="item-label">Functional Cognition</div><div class="scores" id="GG0100D"></div></div>
+
+  <div class="sub-header">GG0130 — Self-Care &nbsp;(circle the score that applies)</div>
+  <div class="item-card full-width" data-item="GG0130" style="padding:0;">
+    <div class="gg-table-wrap">
+      <table class="gg-table"><thead><tr>
+        <th class="row-h">Item</th><th style="min-width:52px;"></th>
+        <th>06</th><th>05</th><th>04</th><th>03</th><th>02</th><th>01</th><th>07</th><th>09</th><th>10</th><th>88</th>
+      </tr></thead><tbody id="GG0130-body"></tbody></table>
+    </div>
+  </div>
+
+  <div class="sub-header">GG0170 — Mobility &nbsp;(circle the score that applies)</div>
+  <div class="item-card full-width" data-item="GG0170" style="padding:0;">
+    <div class="gg-table-wrap">
+      <table class="gg-table"><thead><tr>
+        <th class="row-h">Item</th><th style="min-width:52px;"></th>
+        <th>06</th><th>05</th><th>04</th><th>03</th><th>02</th><th>01</th><th>07</th><th>09</th><th>10</th><th>88</th>
+      </tr></thead><tbody id="GG0170-body"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<div class="spacer"></div>
+
+<!-- ══════════ M ══════════ -->
+<div class="section-header m-color">
+  <span class="badge">M</span><span>Clinical Record Items</span>
+  <span class="desc">— M1033 through M2030</span>
+</div>
+
+<div class="items-grid m-border">
+  <div class="sub-header m-sub">Pain &amp; Symptoms</div>
+  <div class="item-card full-width" data-item="M1033">
+    <div class="item-code m-code">M1033 — Risk for Hospitalization <span style="font-weight:400;color:var(--muted)">(check all that apply)</span></div>
+    <div class="check-group" id="M1033-checks"></div>
+  </div>
+  <div class="item-card" data-item="M1242"><div class="item-code m-code">M1242</div><div class="item-label">Frequency of Pain Interfering with Activity</div><div class="scores" id="M1242"></div></div>
+  <div class="item-card" data-item="M1400"><div class="item-code m-code">M1400</div><div class="item-label">When is Patient Short of Breath?</div><div class="scores" id="M1400"></div></div>
+
+  <div class="sub-header m-sub">Skin &amp; Wounds</div>
+  <div class="item-card" data-item="M1302"><div class="item-code m-code">M1302</div><div class="item-label">Risk of Developing Pressure Injury</div><div class="scores" id="M1302"></div></div>
+  <div class="item-card" data-item="M1300"><div class="item-code m-code">M1300</div><div class="item-label">Pressure Ulcer/Injury Risk Assessment</div><div class="scores" id="M1300"></div></div>
+
+  <div class="sub-header m-sub">Elimination / Continence</div>
+  <div class="item-card" data-item="M1610"><div class="item-code m-code">M1610</div><div class="item-label">Urinary Incontinence or Urinary Catheter</div><div class="scores" id="M1610"></div></div>
+  <div class="item-card" data-item="M1615"><div class="item-code m-code">M1615</div><div class="item-label">When Does Urinary Incontinence Occur?</div><div class="scores" id="M1615"></div></div>
+  <div class="item-card" data-item="M1620"><div class="item-code m-code">M1620</div><div class="item-label">Bowel Incontinence Frequency</div><div class="scores" id="M1620"></div></div>
+  <div class="item-card" data-item="M1630"><div class="item-code m-code">M1630</div><div class="item-label">Ostomy for Bowel Elimination</div><div class="scores" id="M1630"></div></div>
+
+  <div class="sub-header m-sub">Cognitive / Behavioral</div>
+  <div class="item-card" data-item="M1700"><div class="item-code m-code">M1700</div><div class="item-label">Cognitive Functioning</div><div class="scores" id="M1700"></div></div>
+  <div class="item-card" data-item="M1710"><div class="item-code m-code">M1710</div><div class="item-label">When Confused (Reported or Observed)</div><div class="scores" id="M1710"></div></div>
+  <div class="item-card" data-item="M1720"><div class="item-code m-code">M1720</div><div class="item-label">When Anxious (Reported or Observed)</div><div class="scores" id="M1720"></div></div>
+  <div class="item-card" data-item="M1730"><div class="item-code m-code">M1730</div><div class="item-label">PHQ-2 Depression Screening</div><div class="scores" id="M1730"></div></div>
+  <div class="item-card full-width" data-item="M1740">
+    <div class="item-code m-code">M1740 — Cognitive, Behavioral &amp; Psychiatric Symptoms <span style="font-weight:400;color:var(--muted)">(check all that apply)</span></div>
+    <div class="check-group" id="M1740-checks"></div>
+  </div>
+  <div class="item-card" data-item="M1745"><div class="item-code m-code">M1745</div><div class="item-label">Frequency of Disruptive/Problematic Behavior</div><div class="scores" id="M1745"></div></div>
+
+  <div class="sub-header m-sub">ADL / Functional Status</div>
+  <div class="item-card" data-item="M1800"><div class="item-code m-code">M1800</div><div class="item-label">Grooming</div><div class="scores" id="M1800"></div></div>
+  <div class="item-card" data-item="M1810"><div class="item-code m-code">M1810</div><div class="item-label">Current Ability to Dress Upper Body</div><div class="scores" id="M1810"></div></div>
+  <div class="item-card" data-item="M1820"><div class="item-code m-code">M1820</div><div class="item-label">Current Ability to Dress Lower Body</div><div class="scores" id="M1820"></div></div>
+  <div class="item-card" data-item="M1830"><div class="item-code m-code">M1830</div><div class="item-label">Bathing</div><div class="scores" id="M1830"></div></div>
+  <div class="item-card" data-item="M1840"><div class="item-code m-code">M1840</div><div class="item-label">Toilet Transferring</div><div class="scores" id="M1840"></div></div>
+  <div class="item-card" data-item="M1850"><div class="item-code m-code">M1850</div><div class="item-label">Transferring</div><div class="scores" id="M1850"></div></div>
+  <div class="item-card full-width" data-item="M1860"><div class="item-code m-code">M1860</div><div class="item-label">Ambulation / Locomotion</div><div class="scores" id="M1860"></div></div>
+
+  <div class="sub-header m-sub">Medications</div>
+  <div class="item-card" data-item="M2003"><div class="item-code m-code">M2003</div><div class="item-label">Medication Follow-up</div><div class="scores" id="M2003"></div></div>
+  <div class="item-card" data-item="M2005"><div class="item-code m-code">M2005</div><div class="item-label">Medication Intervention</div><div class="scores" id="M2005"></div></div>
+  <div class="item-card" data-item="M2010"><div class="item-code m-code">M2010</div><div class="item-label">Patient/Caregiver Drug Education</div><div class="scores" id="M2010"></div></div>
+  <div class="item-card" data-item="M2015"><div class="item-code m-code">M2015</div><div class="item-label">High-Risk Drug Education</div><div class="scores" id="M2015"></div></div>
+  <div class="item-card" data-item="M2020"><div class="item-code m-code">M2020</div><div class="item-label">Management of Oral Medications</div><div class="scores" id="M2020"></div></div>
+  <div class="item-card" data-item="M2030"><div class="item-code m-code">M2030</div><div class="item-label">Management of Injectable Medications</div><div class="scores" id="M2030"></div></div>
+</div>
+
+<div class="spacer" style="height:24px;"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// CENTRAL STATE
+// ══════════════════════════════════════════════════
+const state = {};
+
+function setState(key, value) {
+  if (value === null || state[key] === value) { delete state[key]; }
+  else { state[key] = value; }
+  try { localStorage.setItem('oasis_state', JSON.stringify(state)); } catch(e) {}
+  runConflicts();
+}
+
+// ══════════════════════════════════════════════════
+// SCORE DATA
+// ══════════════════════════════════════════════════
+const GG_CODES = ['06','05','04','03','02','01','07','09','10','88'];
+const GG0100_CODES = [{v:'3',d:'Independent'},{v:'2',d:'Needed Help'},{v:'1',d:'Dependent'},{v:'8',d:'Unknown'},{v:'N',d:'N/A'}];
+
+const GG0130_ITEMS = [
+  {code:'A',label:'Eating'},{code:'B',label:'Oral Hygiene'},{code:'C',label:'Toileting Hygiene'},
+  {code:'E',label:'Shower / Bathe Self'},{code:'F',label:'Upper Body Dressing'},
+  {code:'G',label:'Lower Body Dressing'},{code:'H',label:'Put on/Take off Footwear'}
+];
+const GG0170_ITEMS = [
+  {code:'A',label:'Roll Left & Right'},{code:'B',label:'Sit to Lying'},
+  {code:'C',label:'Lying to Sitting on Side of Bed'},{code:'D',label:'Sit to Stand'},
+  {code:'E',label:'Chair/Bed-to-Chair Transfer'},{code:'F',label:'Toilet Transfer'},
+  {code:'G',label:'Car Transfer'},{code:'I',label:'Walk 10 Feet'},
+  {code:'J',label:'Walk 50 Ft with 2 Turns'},{code:'K',label:'Walk 150 Feet'},
+  {code:'L',label:'Walk 10 Ft on Uneven Surfaces'},{code:'M',label:'1 Step / Curb'},
+  {code:'N',label:'4 Steps'},{code:'O',label:'12 Steps'},
+  {code:'P',label:'Picking Up Object'},{code:'R',label:'Wheel 50 Feet'},
+  {code:'S',label:'Wheel 150 Feet'}
+];
+
+const M_ITEMS = {
+  M1242:[{v:'0',d:'No pain'},{v:'1',d:'< daily'},{v:'2',d:'Daily, not constant'},{v:'3',d:'All the time'},{v:'NA',d:'Unable to assess'}],
+  M1302:[{v:'0',d:'No risk'},{v:'1',d:'At risk'}],
+  M1300:[{v:'0',d:'No formal tool'},{v:'1',d:'Used — no risk'},{v:'2',d:'Used — low risk'},{v:'3',d:'Used — high risk'}],
+  M1400:[{v:'0',d:'Never'},{v:'1',d:'< moderate exertion'},{v:'2',d:'Moderate exertion'},{v:'3',d:'Minimal exertion/rest'},{v:'4',d:'At rest & bedbound'}],
+  M1610:[{v:'0',d:'No UI'},{v:'1',d:'Incontinent'},{v:'2',d:'Indwelling catheter'},{v:'3',d:'Ostomy/suprapubic'}],
+  M1615:[{v:'0',d:'Timed-void deferred'},{v:'1',d:'Nighttime only'},{v:'2',d:'Daytime only'},{v:'3',d:'Day & night'},{v:'4',d:'Constant — no sensation'},{v:'NA',d:'N/A (catheter)'}],
+  M1620:[{v:'0',d:'Continent'},{v:'1',d:'< 1×/wk'},{v:'2',d:'1–3×/wk'},{v:'3',d:'4–6×/wk'},{v:'4',d:'Daily'},{v:'5',d:'No bowel pattern'},{v:'NA',d:'Ostomy'}],
+  M1630:[{v:'0',d:'No ostomy'},{v:'1',d:'Ostomy — self-care'},{v:'2',d:'Ostomy — needs help'}],
+  M1700:[{v:'0',d:'Alert/oriented'},{v:'1',d:'Requires prompting'},{v:'2',d:'Requires assist'},{v:'3',d:'Requires constant assist'},{v:'4',d:'No consistent communication'},{v:'5',d:'Totally dependent'}],
+  M1710:[{v:'0',d:'Never'},{v:'1',d:'New/complex situations'},{v:'2',d:'Routine situations'},{v:'3',d:'Sometimes day/night'},{v:'4',d:'Constantly'},{v:'NA',d:'Non-verbal'}],
+  M1720:[{v:'0',d:'None of time'},{v:'1',d:'< daily'},{v:'2',d:'Daily, not constant'},{v:'3',d:'All the time'},{v:'NA',d:'Cannot assess'}],
+  M1730:[{v:'0',d:'PHQ-2 negative (0–2)'},{v:'1',d:'PHQ-2 pos → PHQ-9 given'},{v:'2',d:'PHQ-2 pos → no PHQ-9'},{v:'NA',d:'Unable to conduct'}],
+  M1745:[{v:'0',d:'Never'},{v:'1',d:'< once/month'},{v:'2',d:'Once/month'},{v:'3',d:'Several/month'},{v:'4',d:'Several/week'},{v:'5',d:'At least daily'}],
+  M1800:[{v:'0',d:'Independent'},{v:'1',d:'With grooming device'},{v:'2',d:'Needs help — some tasks'},{v:'3',d:'Dependent'}],
+  M1810:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Needs help — some tasks'},{v:'3',d:'Dependent'}],
+  M1820:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Needs help — some tasks'},{v:'3',d:'Dependent'}],
+  M1830:[{v:'0',d:'Indep — no equip'},{v:'1',d:'With bath equip'},{v:'2',d:'Help in/out'},{v:'3',d:'Help — bath & in/out'},{v:'4',d:'Help — bath, attendant'},{v:'5',d:'Unable to bathe self'},{v:'6',d:'Dependent — all'}],
+  M1840:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Help — transfer only'},{v:'3',d:'Help — transfer & hygiene'},{v:'4',d:'Total dependence'},{v:'NA',d:'Bedbound/no toilet'}],
+  M1850:[{v:'0',d:'Independent'},{v:'1',d:'Indep with device'},{v:'2',d:'Help — 1 person'},{v:'3',d:'Help — 2+ people'},{v:'4',d:'Bedbound / unable'}],
+  M1860:[{v:'0',d:'Independent'},{v:'1',d:'Indep — assistive device'},{v:'2',d:'Supervised ambulation'},{v:'3',d:'Guarded ambulation'},{v:'4',d:'Wheelchair — self'},{v:'5',d:'Wheelchair — assist'},{v:'6',d:'Bedbound / non-amb'}],
+  M2003:[{v:'0',d:'Not indicated'},{v:'1',d:'Indicated, completed'},{v:'2',d:'Indicated, not completed'}],
+  M2005:[{v:'0',d:'No action'},{v:'1',d:'Clinician intervention'}],
+  M2010:[{v:'0',d:'No'},{v:'1',d:'Yes'},{v:'NA',d:'Already knowledgeable'}],
+  M2015:[{v:'0',d:'No'},{v:'1',d:'Yes'},{v:'NA',d:'Not on high-risk meds'}],
+  M2020:[{v:'0',d:'Independent'},{v:'1',d:'Able with reminders'},{v:'2',d:'Unable — others manage'},{v:'3',d:'Unable — no meds given'},{v:'NA',d:'No oral meds'}],
+  M2030:[{v:'0',d:'Independent'},{v:'1',d:'Able with reminders'},{v:'2',d:'Unable — others manage'},{v:'3',d:'Not taking injectables'},{v:'NA',d:'No injectables'}]
+};
+
+const M1033_OPTIONS = [
+  'History of falls (2+ in prior 12 mo or any in prior 6 mo)',
+  'Unintentional weight loss (5% in 30 days or 10% in 180 days)',
+  'Multiple hospitalizations (1+ in last 12 months)',
+  'Multiple ED visits (2+ in last 6 months)',
+  'Decline in mental, emotional, or behavioral status',
+  'History of difficulty complying with medical instructions',
+  'Currently taking 5+ medications',
+  'Requires IV/infusion, enteral, or parenteral nutrition',
+  'None of the above'
+];
+const M1740_OPTIONS = [
+  'Memory deficit: difficulty remembering recent events',
+  'Impaired decision-making',
+  'Verbal disruption: yelling, threatening, excessive complaining',
+  'Physical aggression: hitting, kicking, pushing, scratching',
+  'Disruptive, infantile, or socially inappropriate behavior',
+  'Delusional, paranoid, or false beliefs',
+  'None of the above'
+];
+
+// ══════════════════════════════════════════════════
+// CONFLICT ENGINE
+// ══════════════════════════════════════════════════
+
+// M item score as integer (null if not set or not numeric)
+function mNum(key) {
+  const v = state[key];
+  if (!v) return null;
+  const n = parseInt(v);
+  return isNaN(n) ? null : n;
+}
+
+// GG functional code → dependency level 1(indep)–5(dependent), null if special code
+function ggDep(key) {
+  const map = {'06':1,'05':2,'04':2,'03':3,'02':4,'01':5};
+  return map[state[key]] !== undefined ? map[state[key]] : null;
+}
+
+// GG0100 prior score as integer (3=indep, 2=help needed, 1=dependent)
+function g100(key) {
+  const v = state[key];
+  if (!v) return null;
+  const n = parseInt(v);
+  return isNaN(n) ? null : n;
+}
+
+// Read state of an indexed checkbox in a check-pill group (e.g. 'M1740-checks', 0)
+function isChecked(groupId, idx) {
+  const el = document.querySelectorAll(`#${groupId} .check-pill`)[idx];
+  return !!(el && el.classList.contains('checked'));
+}
+
+const RULES = [
+
+  // ━━ ERRORS — direct contradictions ━━
+
+  { id:'bedbound_amb', sev:'error', label:'Transferring vs. Ambulation', items:['M1850','M1860'],
+    check() {
+      const tr=mNum('M1850'), am=mNum('M1860');
+      if(tr===null||am===null) return null;
+      if(tr>=4 && am<=1) return '<strong>M1850=4</strong> (Bedbound) contradicts <strong>M1860≤1</strong> (Independent/Device ambulation). A patient documented as bedbound cannot independently ambulate.';
+      return null;
+    }
+  },
+
+  { id:'bedbound_toilet', sev:'error', label:'Bedbound vs. Toilet Transfer', items:['M1850','M1840'],
+    check() {
+      const tr=mNum('M1850'), tl=mNum('M1840');
+      if(tr===null||tl===null) return null;
+      if(tr>=4 && tl<=1) return '<strong>M1850=4</strong> (Bedbound) contradicts <strong>M1840≤1</strong> (Independent/Device toilet transfer). A bedbound patient cannot independently toilet transfer.';
+      return null;
+    }
+  },
+
+  { id:'catheter_timing', sev:'error', label:'Urinary Catheter vs. Incontinence Timing', items:['M1610','M1615'],
+    check() {
+      const c=state['M1610'], t=state['M1615'];
+      if(!c||!t) return null;
+      if(c==='2' && t!=='NA' && t!=='0') return '<strong>M1610=2</strong> (Indwelling catheter): <strong>M1615</strong> must be scored N/A or 0 (timed-void deferred). Incontinence timing assessment does not apply with an indwelling catheter in place.';
+      return null;
+    }
+  },
+
+  { id:'ostomy_bowel', sev:'error', label:'Ostomy vs. Bowel Incontinence', items:['M1630','M1620'],
+    check() {
+      const o=mNum('M1630'), br=state['M1620'];
+      if(o===null||!br) return null;
+      if(o>=1 && br!=='NA') return '<strong>M1630≥1</strong> (Ostomy present): <strong>M1620</strong> (Bowel Incontinence Frequency) must be scored N/A when an ostomy is in place.';
+      return null;
+    }
+  },
+
+  { id:'alert_constant_confused', sev:'error', label:'Cognitive Functioning vs. Confusion', items:['M1700','M1710'],
+    check() {
+      const cg=mNum('M1700'), cf=mNum('M1710');
+      if(cg===null||cf===null) return null;
+      if(cg===0 && cf>=4) return '<strong>M1700=0</strong> (Alert/Oriented) directly contradicts <strong>M1710=4</strong> (Constantly confused). These scores cannot coexist — verify both.';
+      return null;
+    }
+  },
+
+  { id:'walk_distance_order', sev:'error', label:'GG0170 Walking Distance Consistency', items:['GG0170'],
+    check() {
+      const w10=ggDep('GG0170I_ad'), w50=ggDep('GG0170J_ad'), w150=ggDep('GG0170K_ad');
+      if(w150!==null && w10!==null && w150 < w10-1)
+        return '<strong>GG0170K</strong> (Walk 150 ft) is scored more independently than <strong>GG0170I</strong> (Walk 10 ft). A patient cannot walk a longer distance with less assistance than a shorter one.';
+      if(w50!==null && w10!==null && w50 < w10-1)
+        return '<strong>GG0170J</strong> (Walk 50 ft) is scored more independently than <strong>GG0170I</strong> (Walk 10 ft). Verify walking distance scores are in logical progression.';
+      return null;
+    }
+  },
+
+  { id:'stair_order', sev:'error', label:'GG0170 Stair Step Consistency', items:['GG0170'],
+    check() {
+      const s4=ggDep('GG0170N_ad'), s12=ggDep('GG0170O_ad');
+      if(s4!==null && s12!==null && s12 < s4-1)
+        return '<strong>GG0170O</strong> (12 Steps) is scored more independently than <strong>GG0170N</strong> (4 Steps). A patient cannot manage more stairs with less assistance — verify.';
+      return null;
+    }
+  },
+
+  { id:'sit_to_lie_vs_lie_to_sit', sev:'error', label:'GG0170 Sit-to-Lying vs. Lying-to-Sitting', items:['GG0170'],
+    check() {
+      const s2l=ggDep('GG0170B_ad'), l2s=ggDep('GG0170C_ad');
+      if(s2l!==null && l2s!==null && Math.abs(s2l-l2s) > 2)
+        return '<strong>GG0170B</strong> (Sit-to-Lying) and <strong>GG0170C</strong> (Lying-to-Sitting) differ by more than 2 levels. These reciprocal movements typically require similar ability — verify.';
+      return null;
+    }
+  },
+
+  // ━━ WARNINGS — clinically unusual ━━
+
+  { id:'indep_amb_dep_toilet', sev:'warning', label:'Ambulation vs. Toilet Transferring', items:['M1860','M1840'],
+    check() {
+      const am=mNum('M1860'), tl=mNum('M1840');
+      if(am===null||tl===null) return null;
+      if(am<=1 && tl>=3) return '<strong>M1860≤1</strong> (Independent/Device ambulation) is inconsistent with <strong>M1840≥3</strong> (significant toilet transfer help). A patient who ambulates independently should typically manage toilet transfers with less assistance.';
+      return null;
+    }
+  },
+
+  { id:'indep_toilet_dep_transfer', sev:'warning', label:'Toilet Transferring vs. General Transferring', items:['M1840','M1850'],
+    check() {
+      const tl=mNum('M1840'), tr=mNum('M1850');
+      if(tl===null||tr===null) return null;
+      if(tl<=1 && tr>=3) return '<strong>M1840≤1</strong> (Independent/Device toilet transfer) is inconsistent with <strong>M1850≥3</strong> (needs 2+ people to transfer). Toilet transfer ability typically requires comparable or greater skill than general transfers.';
+      if(tl > tr+1) return '<strong>M1840</strong> (Toilet Transfer) implies significantly more dependence than <strong>M1850</strong> (General Transfer). Toilet transfer is rarely harder by more than 1 level — verify.';
+      return null;
+    }
+  },
+
+  { id:'grooming_dressing', sev:'warning', label:'Grooming vs. Upper Body Dressing', items:['M1800','M1810'],
+    check() {
+      const gr=mNum('M1800'), dr=mNum('M1810');
+      if(gr===null||dr===null) return null;
+      if(gr>=3 && dr===0) return '<strong>M1800=3</strong> (Dependent in grooming) is unusual when <strong>M1810=0</strong> (Independent upper body dressing). Dressing is typically more complex than grooming — verify both.';
+      if(gr===0 && dr>=3) return '<strong>M1800=0</strong> (Independent grooming) is inconsistent with <strong>M1810≥3</strong> (Dependent upper body dressing). These abilities typically correlate — verify.';
+      return null;
+    }
+  },
+
+  { id:'upper_lower_dressing', sev:'warning', label:'Upper vs. Lower Body Dressing', items:['M1810','M1820'],
+    check() {
+      const up=mNum('M1810'), lo=mNum('M1820');
+      if(up===null||lo===null) return null;
+      if(lo===0 && up>=3) return '<strong>M1820=0</strong> (Independent lower body dressing) with <strong>M1810≥3</strong> (Dependent upper body dressing) is inconsistent. Lower body dressing is typically the harder task — verify both.';
+      return null;
+    }
+  },
+
+  { id:'bathing_vs_transfer', sev:'warning', label:'Bathing vs. Transferring', items:['M1830','M1850'],
+    check() {
+      const bt=mNum('M1830'), tr=mNum('M1850');
+      if(bt===null||tr===null) return null;
+      if(bt<=1 && tr>=3) return '<strong>M1830≤1</strong> (Independent/Equipment bathing) conflicts with <strong>M1850≥3</strong> (needs 2+ people to transfer). Bathing requires transfer ability — verify both.';
+      return null;
+    }
+  },
+
+  { id:'cognition_confusion', sev:'warning', label:'Cognitive Functioning vs. Confusion Frequency', items:['M1700','M1710'],
+    check() {
+      const cg=mNum('M1700'), cf=mNum('M1710');
+      if(cg===null||cf===null) return null;
+      if(cg===0 && cf>=3) return '<strong>M1700=0</strong> (Alert/Oriented) with <strong>M1710≥3</strong> (frequently confused) is inconsistent. If confusion occurs regularly, cognitive functioning should reflect some impairment.';
+      if(cg>=4 && cf===0) return '<strong>M1700≥4</strong> (Severely impaired cognition) with <strong>M1710=0</strong> (never confused) may be inconsistent. Severe cognitive impairment typically involves some confusion — verify.';
+      return null;
+    }
+  },
+
+  { id:'prior_mob_vs_current_walk', sev:'warning', label:'Prior Indoor Mobility vs. Current GG0170 Walking', items:['GG0100B','GG0170'],
+    check() {
+      const prior=g100('GG0100B'), curr=ggDep('GG0170I_ad');
+      if(prior===null||curr===null) return null;
+      if(prior===3 && curr===5) return '<strong>GG0100B=3</strong> (Prior: Independent indoor mobility) with <strong>GG0170I=01</strong> (Current: Dependent walking 10 ft) indicates complete functional loss. Ensure this reflects an acute event and is clinically supported in documentation.';
+      return null;
+    }
+  },
+
+  { id:'gg170_toilet_vs_walk', sev:'warning', label:'GG0170 Toilet Transfer vs. Walking', items:['GG0170'],
+    check() {
+      const tl=ggDep('GG0170F_ad'), wk=ggDep('GG0170I_ad');
+      if(tl===null||wk===null) return null;
+      if(wk===1 && tl===5) return '<strong>GG0170F=01</strong> (Toilet Transfer: Dependent) with <strong>GG0170I=06</strong> (Walk 10 ft: Independent). A patient who walks independently is rarely fully dependent for toilet transfers — verify.';
+      return null;
+    }
+  },
+
+  { id:'gg170_chair_vs_walk', sev:'warning', label:'GG0170 Chair/Bed Transfer vs. Walking', items:['GG0170'],
+    check() {
+      const ch=ggDep('GG0170E_ad'), wk=ggDep('GG0170I_ad');
+      if(ch===null||wk===null) return null;
+      if(wk===1 && ch===5) return '<strong>GG0170E=01</strong> (Chair Transfer: Dependent) with <strong>GG0170I=06</strong> (Walk 10 ft: Independent) is inconsistent. Ambulation requires the ability to transfer — verify both.';
+      return null;
+    }
+  },
+
+  { id:'no_ui_but_timing_scored', sev:'warning', label:'No UI but Incontinence Timing Scored', items:['M1610','M1615'],
+    check() {
+      const c=state['M1610'], t=state['M1615'];
+      if(!c||!t) return null;
+      if(c==='0' && t!=='0' && t!=='NA') return '<strong>M1610=0</strong> (No urinary incontinence) is inconsistent with a scored <strong>M1615</strong> (When UI Occurs). M1615 should not be scored when no UI is present.';
+      return null;
+    }
+  },
+
+  // ━━ ADMISSION vs. GOAL CHECKS ━━
+
+  // ━━ GG0130 SELF-CARE SEQUENCING ━━
+  // Bathing encompasses toileting hygiene — can't be more independent at bathing if dependent at toileting hygiene
+  { id:'toilet_hygiene_vs_bathing', sev:'error', label:'GG0130 Toileting Hygiene vs. Shower/Bathe Self', items:['GG0130'],
+    check() {
+      const thDep   = ggDep('GG0130C_ad'), bathDep = ggDep('GG0130E_ad');
+      const thVal   = state['GG0130C_ad'],  bathVal  = state['GG0130E_ad'];
+      if (thDep !== null && bathDep !== null && bathDep < thDep - 1)
+        return `GG0130C Toileting Hygiene (<strong>${thVal}</strong>) requires more assistance than GG0130E Shower/Bathe Self (<strong>${bathVal}</strong>). Bathing encompasses toileting hygiene — shower independence requires at least equivalent hygiene ability.`;
+      return null;
+    }
+  },
+
+  { id:'oral_hygiene_vs_upper_dressing', sev:'warning', label:'GG0130 Oral Hygiene vs. Upper Body Dressing', items:['GG0130'],
+    check() {
+      const ohDep = ggDep('GG0130B_ad'), udDep = ggDep('GG0130F_ad');
+      const ohVal = state['GG0130B_ad'],  udVal  = state['GG0130F_ad'];
+      if (ohDep !== null && udDep !== null && ohDep >= 4 && udDep <= 1)
+        return `GG0130B Oral Hygiene (<strong>${ohVal}</strong>) is near-dependent while GG0130F Upper Body Dressing (<strong>${udVal}</strong>) is independent. Dressing requires greater UE coordination and endurance — verify both.`;
+      return null;
+    }
+  },
+
+  { id:'gg0130_upper_vs_lower_dressing', sev:'error', label:'GG0130 Upper Body Dressing vs. Lower Body Dressing', items:['GG0130'],
+    check() {
+      const upDep = ggDep('GG0130F_ad'), loDep = ggDep('GG0130G_ad');
+      const upVal = state['GG0130F_ad'],  loVal  = state['GG0130G_ad'];
+      if (upDep !== null && loDep !== null && loDep < upDep - 1)
+        return `GG0130G Lower Body Dressing (<strong>${loVal}</strong>) is scored more independently than GG0130F Upper Body Dressing (<strong>${upVal}</strong>). Lower body dressing is typically the harder task — verify both.`;
+      return null;
+    }
+  },
+
+  { id:'gg0130_lower_dressing_vs_footwear', sev:'warning', label:'GG0130 Lower Body Dressing vs. Footwear', items:['GG0130'],
+    check() {
+      const loDep = ggDep('GG0130G_ad'), fwDep = ggDep('GG0130H_ad');
+      const loVal = state['GG0130G_ad'],  fwVal  = state['GG0130H_ad'];
+      if (loDep !== null && fwDep !== null && fwDep < loDep - 1)
+        return `GG0130H Footwear (<strong>${fwVal}</strong>) scored more independently than GG0130G Lower Body Dressing (<strong>${loVal}</strong>). Putting on footwear is a component of lower body dressing — scores should be similar or footwear harder.`;
+      return null;
+    }
+  },
+
+  // ━━ M ↔ GG CROSS-SECTION CONSISTENCY ━━
+  // M scales 0-3 (or 0-6 for bathing) mapped to GG dependency levels 1 (indep) – 5 (dep).
+  // Flag when the mapped distance is ≥ 3 levels — large mismatches between the two halves of the form.
+
+  { id:'m1810_vs_gg0130f', sev:'warning', label:'M1810 Upper Dressing vs. GG0130F', items:['M1810','GG0130'],
+    check() {
+      const m = mNum('M1810'), g = ggDep('GG0130F_ad');
+      if (m === null || g === null) return null;
+      const expected = [1,2,3,5][m];
+      if (Math.abs(g - expected) >= 3)
+        return `<strong>M1810=${m}</strong> conflicts with <strong>GG0130F=${state['GG0130F_ad']}</strong>. Both items measure upper-body dressing — scores should describe the same ability.`;
+      return null;
+    }
+  },
+
+  { id:'m1820_vs_gg0130g', sev:'warning', label:'M1820 Lower Dressing vs. GG0130G', items:['M1820','GG0130'],
+    check() {
+      const m = mNum('M1820'), g = ggDep('GG0130G_ad');
+      if (m === null || g === null) return null;
+      const expected = [1,2,3,5][m];
+      if (Math.abs(g - expected) >= 3)
+        return `<strong>M1820=${m}</strong> conflicts with <strong>GG0130G=${state['GG0130G_ad']}</strong>. Both items measure lower-body dressing — scores should describe the same ability.`;
+      return null;
+    }
+  },
+
+  { id:'m1830_vs_gg0130e', sev:'warning', label:'M1830 Bathing vs. GG0130E Shower', items:['M1830','GG0130'],
+    check() {
+      const m = mNum('M1830'), g = ggDep('GG0130E_ad');
+      if (m === null || g === null) return null;
+      const expected = [1,2,3,3,4,5,5][m];
+      if (Math.abs(g - expected) >= 3)
+        return `<strong>M1830=${m}</strong> conflicts with <strong>GG0130E=${state['GG0130E_ad']}</strong>. M1830 bathing and GG0130E shower describe overlapping abilities.`;
+      return null;
+    }
+  },
+
+  { id:'m1840_vs_gg0170f', sev:'warning', label:'M1840 Toilet Transfer vs. GG0170F', items:['M1840','GG0170'],
+    check() {
+      const m = mNum('M1840'), g = ggDep('GG0170F_ad');
+      if (m === null || g === null) return null;
+      const expected = [1,2,3,4,5][m];
+      if (Math.abs(g - expected) >= 3)
+        return `<strong>M1840=${m}</strong> conflicts with <strong>GG0170F=${state['GG0170F_ad']}</strong>. Both items measure toilet transfer ability.`;
+      return null;
+    }
+  },
+
+  { id:'m1850_vs_gg0170e', sev:'warning', label:'M1850 Transfer vs. GG0170E Chair/Bed', items:['M1850','GG0170'],
+    check() {
+      const m = mNum('M1850'), g = ggDep('GG0170E_ad');
+      if (m === null || g === null) return null;
+      const expected = [1,2,3,4,5][m];
+      if (Math.abs(g - expected) >= 3)
+        return `<strong>M1850=${m}</strong> conflicts with <strong>GG0170E=${state['GG0170E_ad']}</strong>. Both items measure chair/bed transfer ability.`;
+      return null;
+    }
+  },
+
+  { id:'m1860_vs_gg0170i', sev:'error', label:'M1860 Ambulation vs. GG0170I Walk 10 ft', items:['M1860','GG0170'],
+    check() {
+      const m = mNum('M1860'), g = ggDep('GG0170I_ad');
+      if (m === null || g === null) return null;
+      // M1860: 0-1 walks indep/device, 2-3 walks with help, 4-5 wheelchair, 6 bedbound
+      if (m <= 1 && g >= 4)
+        return `<strong>M1860=${m}</strong> (walks independently) but <strong>GG0170I=${state['GG0170I_ad']}</strong> shows substantial walking assistance. These contradict.`;
+      if (m >= 4 && g <= 2)
+        return `<strong>M1860=${m}</strong> (wheelchair or bedbound) but <strong>GG0170I=${state['GG0170I_ad']}</strong> shows independent or near-independent walking. These contradict.`;
+      return null;
+    }
+  },
+
+  // ━━ COGNITION & MEDS ━━
+
+  { id:'prior_cog_decline', sev:'warning', label:'Prior Cognition vs. Current M1700', items:['GG0100D','M1700'],
+    check() {
+      const prior = g100('GG0100D'), curr = mNum('M1700');
+      if (prior === null || curr === null) return null;
+      if (prior === 3 && curr >= 3)
+        return '<strong>GG0100D=3</strong> (Prior: Independent functional cognition) with <strong>M1700≥3</strong> (Current: requires constant assist or worse) indicates significant cognitive decline. Verify documentation supports an acute event.';
+      return null;
+    }
+  },
+
+  { id:'severe_cog_indep_meds', sev:'error', label:'Cognition vs. Oral Med Management', items:['M1700','M2020'],
+    check() {
+      const cg = mNum('M1700'), m = mNum('M2020');
+      if (cg === null || m === null) return null;
+      if (cg >= 4 && m === 0)
+        return '<strong>M1700≥4</strong> (no consistent communication or totally dependent) cannot coexist with <strong>M2020=0</strong> (independent oral medication management).';
+      return null;
+    }
+  },
+
+  { id:'no_meds_but_education', sev:'error', label:'No Meds but Drug Education Given', items:['M2010','M2020','M2030'],
+    check() {
+      const oral = state['M2020'], inj = state['M2030'], ed = state['M2010'];
+      if (!oral || !inj || !ed) return null;
+      if (oral === 'NA' && inj === 'NA' && ed === '1')
+        return '<strong>M2020=NA</strong> and <strong>M2030=NA</strong> (no oral or injectable medications) but <strong>M2010=1</strong> (drug education provided). With no medications, drug education would not apply.';
+      return null;
+    }
+  },
+
+  { id:'high_risk_na_but_meds', sev:'warning', label:'M2015 NA vs. Active Medications', items:['M2015','M2020','M2030'],
+    check() {
+      const hr = state['M2015'], oral = state['M2020'], inj = state['M2030'];
+      if (hr !== 'NA') return null;
+      const onOral = oral && oral !== 'NA';
+      const onInj  = inj  && inj  !== 'NA';
+      if (onOral || onInj)
+        return '<strong>M2015=NA</strong> (not on high-risk meds) — verify against the medication list. Patient appears to be on active medications per M2020/M2030.';
+      return null;
+    }
+  },
+
+  // ━━ M1700 / M1740 / M1745 BEHAVIORAL CONSISTENCY ━━
+
+  { id:'alert_but_memory_deficit', sev:'error', label:'M1700 Alert vs. M1740 Cognitive Symptoms', items:['M1700','M1740'],
+    check() {
+      const cg = mNum('M1700');
+      if (cg !== 0) return null;
+      // M1740: 0=Memory deficit, 1=Impaired decision-making
+      if (isChecked('M1740-checks', 0) || isChecked('M1740-checks', 1))
+        return '<strong>M1700=0</strong> (Alert/Oriented) is contradicted by <strong>M1740</strong> showing memory deficit or impaired decision-making.';
+      return null;
+    }
+  },
+
+  { id:'disruptive_but_m1740_none', sev:'error', label:'M1745 Disruptive vs. M1740 None', items:['M1745','M1740'],
+    check() {
+      const f = mNum('M1745');
+      if (f === null || f < 3) return null;
+      // M1740: 6 = "None of the above"
+      if (isChecked('M1740-checks', 6))
+        return '<strong>M1745≥3</strong> (disruptive behavior several times/month or more) contradicts <strong>M1740</strong> "None of the above". A behavioral symptom must be marked.';
+      return null;
+    }
+  },
+
+  { id:'aggression_but_m1745_never', sev:'error', label:'M1740 Aggression vs. M1745 Never', items:['M1740','M1745'],
+    check() {
+      const f = mNum('M1745');
+      if (f !== 0) return null;
+      // M1740: 2=Verbal disruption, 3=Physical aggression, 4=Disruptive/socially inappropriate
+      const hasDisruptive = isChecked('M1740-checks', 2) || isChecked('M1740-checks', 3) || isChecked('M1740-checks', 4);
+      if (hasDisruptive)
+        return '<strong>M1740</strong> shows verbal disruption, physical aggression, or disruptive behavior, but <strong>M1745=0</strong> (never disruptive). Frequency must be ≥1.';
+      return null;
+    }
+  },
+
+  { id:'m1033_none_exclusive', sev:'error', label:'M1033 "None of the Above" Exclusivity', items:['M1033'],
+    check() {
+      // M1033: 8 = "None of the above"
+      if (!isChecked('M1033-checks', 8)) return null;
+      for (let i = 0; i < 8; i++) {
+        if (isChecked('M1033-checks', i))
+          return '<strong>M1033</strong> "None of the above" cannot be selected together with other risk factors. Choose one or the other.';
+      }
+      return null;
+    }
+  },
+
+  { id:'m1740_none_exclusive', sev:'error', label:'M1740 "None of the Above" Exclusivity', items:['M1740'],
+    check() {
+      // M1740: 6 = "None of the above"
+      if (!isChecked('M1740-checks', 6)) return null;
+      for (let i = 0; i < 6; i++) {
+        if (isChecked('M1740-checks', i))
+          return '<strong>M1740</strong> "None of the above" cannot be selected together with other symptoms. Choose one or the other.';
+      }
+      return null;
+    }
+  },
+
+  // ━━ PRESSURE INJURY LOGIC ━━
+
+  { id:'no_pi_risk_but_immobile', sev:'warning', label:'M1302 No Risk vs. Immobility', items:['M1302','M1860','M1850'],
+    check() {
+      const r = mNum('M1302');
+      if (r !== 0) return null;
+      const am = mNum('M1860'), tr = mNum('M1850');
+      if ((am !== null && am >= 5) || (tr !== null && tr >= 3))
+        return '<strong>M1302=0</strong> (No pressure injury risk) is inconsistent with <strong>M1860≥5</strong> (wheelchair-assist or bedbound) or <strong>M1850≥3</strong> (needs 2+ to transfer). Immobility is an inherent risk factor.';
+      return null;
+    }
+  },
+
+  { id:'pi_at_risk_no_tool', sev:'warning', label:'M1302 At Risk vs. M1300 No Tool', items:['M1302','M1300'],
+    check() {
+      const r = mNum('M1302'), tool = mNum('M1300');
+      if (r === null || tool === null) return null;
+      if (r === 1 && tool === 0)
+        return '<strong>M1302=1</strong> (At risk for pressure injury) with <strong>M1300=0</strong> (No formal assessment tool used). A standardized tool should support the at-risk determination.';
+      return null;
+    }
+  },
+
+  // ━━ GG0170 MOBILITY PREREQUISITES ━━
+
+  { id:'sts_dep_walk_indep', sev:'error', label:'GG0170D Sit-to-Stand vs. Walking', items:['GG0170'],
+    check() {
+      const sts = ggDep('GG0170D_ad'), wk = ggDep('GG0170I_ad');
+      if (sts === null || wk === null) return null;
+      if (sts === 5 && wk <= 2)
+        return `<strong>GG0170D=01</strong> (Sit-to-Stand: Dependent) cannot coexist with <strong>GG0170I=${state['GG0170I_ad']}</strong> (Walk 10 ft: independent or near-independent). Standing is a prerequisite to walking.`;
+      return null;
+    }
+  },
+
+  { id:'roll_dep_sit_to_lie_indep', sev:'error', label:'GG0170A Rolling vs. GG0170B Sit-to-Lying', items:['GG0170'],
+    check() {
+      const roll = ggDep('GG0170A_ad'), s2l = ggDep('GG0170B_ad');
+      if (roll === null || s2l === null) return null;
+      if (roll === 5 && s2l <= 2)
+        return `<strong>GG0170A=01</strong> (Roll Left/Right: Dependent) cannot coexist with <strong>GG0170B=${state['GG0170B_ad']}</strong> (Sit-to-Lying: independent). Rolling is a prerequisite movement.`;
+      return null;
+    }
+  },
+
+  { id:'bedbound_toilet_not_na', sev:'error', label:'M1860 Bedbound vs. M1840 Not NA', items:['M1860','M1840'],
+    check() {
+      const am = mNum('M1860');
+      const tl = state['M1840'];
+      if (am !== 6 || !tl) return null;
+      if (tl !== 'NA')
+        return `<strong>M1860=6</strong> (Bedbound, non-ambulatory) requires <strong>M1840=NA</strong> (Bedbound/no toilet). Currently scored ${tl}.`;
+      return null;
+    }
+  },
+
+  // ━━ NEW ERRORS — direct contradictions ━━
+
+  { id:'sob_bedbound_amb', sev:'error', label:'M1400 SOB at Rest vs. M1860 Ambulation', items:['M1400','M1860'],
+    check() {
+      const s=mNum('M1400'), a=mNum('M1860');
+      if (s===null || a===null) return null;
+      if (s===4 && a<=2)
+        return '<strong>M1400=4</strong> (Short of breath at rest, bedbound) contradicts <strong>M1860≤2</strong> (independent or supervised ambulation). A patient bedbound from dyspnea cannot ambulate.';
+      return null;
+    }
+  },
+
+  { id:'sob_bedbound_bath', sev:'error', label:'M1400 SOB at Rest vs. M1830 Bathing', items:['M1400','M1830'],
+    check() {
+      const s=mNum('M1400'), b=mNum('M1830');
+      if (s===null || b===null) return null;
+      if (s===4 && b<=2)
+        return '<strong>M1400=4</strong> (Short of breath at rest, bedbound) contradicts <strong>M1830≤2</strong> (independent bathing or only help in/out). A patient bedbound from dyspnea cannot bathe with so little assistance.';
+      return null;
+    }
+  },
+
+  { id:'amb_bedbound_indep_transfer', sev:'error', label:'M1860 Bedbound vs. M1850 Independent Transfer', items:['M1860','M1850'],
+    check() {
+      const a=mNum('M1860'), t=mNum('M1850');
+      if (a===null || t===null) return null;
+      if (a===6 && t<=1)
+        return '<strong>M1860=6</strong> (Bedbound, non-ambulatory) contradicts <strong>M1850≤1</strong> (independent or device-only transfer). Bedbound status precludes independent transfers.';
+      return null;
+    }
+  },
+
+  { id:'toilet_na_not_bedbound', sev:'error', label:'M1840 NA vs. M1860 Not Bedbound', items:['M1840','M1860'],
+    check() {
+      const tl=state['M1840'], a=mNum('M1860');
+      if (tl !== 'NA' || a===null) return null;
+      if (a < 6)
+        return `<strong>M1840=NA</strong> (Bedbound/no toilet use) requires <strong>M1860=6</strong> (Bedbound). Currently M1860=${a}.`;
+      return null;
+    }
+  },
+
+  { id:'alert_but_delusional', sev:'error', label:'M1700 Alert vs. M1740 Delusional/Paranoid', items:['M1700','M1740'],
+    check() {
+      const cg=mNum('M1700');
+      if (cg !== 0) return null;
+      // M1740 option 5 = "Delusional, paranoid, or false beliefs"
+      if (isChecked('M1740-checks', 5))
+        return '<strong>M1700=0</strong> (Alert/Oriented) is contradicted by <strong>M1740</strong> "Delusional, paranoid, or false beliefs". Alert/oriented status excludes psychotic features.';
+      return null;
+    }
+  },
+
+  { id:'indep_bath_needs_transfer', sev:'error', label:'M1830 Independent Bath vs. M1850 Transfer Help', items:['M1830','M1850'],
+    check() {
+      const b=mNum('M1830'), t=mNum('M1850');
+      if (b===null || t===null) return null;
+      if (b===0 && t>=2)
+        return '<strong>M1830=0</strong> (Independent bathing, no equipment) cannot coexist with <strong>M1850≥2</strong> (needs human help to transfer). Independent bathing requires the transfer ability to enter and exit the tub or shower.';
+      return null;
+    }
+  },
+
+  { id:'m1033_5meds_no_meds', sev:'error', label:'M1033 5+ Medications vs. M2020/M2030 NA', items:['M1033','M2020','M2030'],
+    check() {
+      // M1033 option 6 = "Currently taking 5+ medications"
+      if (!isChecked('M1033-checks', 6)) return null;
+      const oral=state['M2020'], inj=state['M2030'];
+      if (oral === 'NA' && inj === 'NA')
+        return '<strong>M1033</strong> "Currently taking 5+ medications" contradicts <strong>M2020=NA</strong> and <strong>M2030=NA</strong> (no oral or injectable medications). Reconcile against the medication list.';
+      return null;
+    }
+  },
+
+  { id:'walk_uneven_vs_flat', sev:'error', label:'GG0170L Walk Uneven vs. GG0170I Walk 10 ft', items:['GG0170'],
+    check() {
+      const flat=ggDep('GG0170I_ad'), uneven=ggDep('GG0170L_ad');
+      if (flat===null || uneven===null) return null;
+      if (uneven < flat - 1)
+        return `<strong>GG0170L=${state['GG0170L_ad']}</strong> (Walk on Uneven Surfaces) is scored more independently than <strong>GG0170I=${state['GG0170I_ad']}</strong> (Walk 10 ft flat). Walking on uneven surfaces is the harder task — verify.`;
+      return null;
+    }
+  },
+
+  { id:'gg130c_indep_vs_m1840_dep', sev:'error', label:'GG0130C Toileting Hygiene Indep vs. M1840 Total Dep', items:['GG0130','M1840'],
+    check() {
+      const th=ggDep('GG0130C_ad'), m=mNum('M1840');
+      if (th===null || m===null) return null;
+      if (th===1 && m===4)
+        return '<strong>GG0130C=06</strong> (Toileting Hygiene: Independent) contradicts <strong>M1840=4</strong> (Total dependence in toilet transfer). Independent toileting hygiene requires the ability to use the toilet.';
+      return null;
+    }
+  },
+
+  // ━━ NEW WARNINGS — clinically unusual ━━
+
+  { id:'indep_bath_poor_amb', sev:'warning', label:'M1830 Independent Bath vs. M1860 Guarded Ambulation', items:['M1830','M1860'],
+    check() {
+      const b=mNum('M1830'), a=mNum('M1860');
+      if (b===null || a===null) return null;
+      if (b===0 && a>=3)
+        return '<strong>M1830=0</strong> (Independent bath, no equipment) is unusual with <strong>M1860≥3</strong> (guarded ambulation, wheelchair, or bedbound). Independent bathing typically requires good standing balance — verify.';
+      return null;
+    }
+  },
+
+  { id:'eating_dep_alert', sev:'warning', label:'GG0130A Eating Dependent vs. M1700 Alert', items:['GG0130','M1700'],
+    check() {
+      const e=ggDep('GG0130A_ad'), cg=mNum('M1700');
+      if (e===null || cg===null) return null;
+      if (e===5 && cg===0)
+        return '<strong>GG0130A=01</strong> (Eating: Dependent) with <strong>M1700=0</strong> (Alert/Oriented) is unusual. Alert patients typically self-feed unless physically disabled — verify the underlying cause.';
+      return null;
+    }
+  },
+
+  { id:'frequent_bi_indep_toilet', sev:'warning', label:'M1620 Frequent BI vs. M1840 Independent Toilet', items:['M1620','M1840'],
+    check() {
+      const bi=mNum('M1620'), tl=mNum('M1840');
+      if (bi===null || tl===null) return null;
+      if (bi>=3 && tl<=1)
+        return '<strong>M1620≥3</strong> (Bowel incontinence ≥4×/week) is unusual with <strong>M1840≤1</strong> (independent toilet transfer). Frequent BI typically associates with toileting or sensory difficulty — verify cause.';
+      return null;
+    }
+  },
+
+  { id:'disruptive_alert', sev:'warning', label:'M1745 Frequent Disruption vs. M1700 Alert', items:['M1745','M1700'],
+    check() {
+      const f=mNum('M1745'), cg=mNum('M1700');
+      if (f===null || cg===null) return null;
+      if (f>=4 && cg<=1)
+        return '<strong>M1745≥4</strong> (disruptive behavior several times/week or daily) with <strong>M1700≤1</strong> (alert or only requires prompting) is unusual — frequent behavioral disruption usually has a cognitive or psychiatric component.';
+      return null;
+    }
+  },
+
+  // ━━ GG0100 PRIOR DEPENDENT vs. CURRENT INDEPENDENT — improvement is unusual ━━
+
+  { id:'prior_dep_self_care_now_indep', sev:'warning', label:'GG0100A Prior Dependent vs. Current GG0130 Independent', items:['GG0100A','GG0130'],
+    check() {
+      if (g100('GG0100A') !== 1) return null;
+      const items = ['A','B','C','E','F','G','H'];
+      for (const c of items) {
+        if (state[`GG0130${c}_ad`] === '06')
+          return `<strong>GG0100A=1</strong> (Prior: Dependent self-care) with <strong>GG0130${c}=06</strong> (Current: Independent). Improvement from dependent to independent without an intervening rehab episode is clinically unusual — verify documentation.`;
+      }
+      return null;
+    }
+  },
+
+  { id:'prior_dep_mob_now_indep_walk', sev:'warning', label:'GG0100B Prior Dependent vs. Current Walking Independent', items:['GG0100B','GG0170'],
+    check() {
+      if (g100('GG0100B') !== 1) return null;
+      const walks = ['I','J','K'];
+      for (const c of walks) {
+        if (state[`GG0170${c}_ad`] === '06')
+          return `<strong>GG0100B=1</strong> (Prior: Dependent indoor mobility) with <strong>GG0170${c}=06</strong> (Current: Independent). Spontaneous improvement to independent ambulation is unusual — verify.`;
+      }
+      return null;
+    }
+  },
+
+  { id:'prior_dep_stairs_now_indep', sev:'warning', label:'GG0100C Prior Dependent vs. Current Stairs Independent', items:['GG0100C','GG0170'],
+    check() {
+      if (g100('GG0100C') !== 1) return null;
+      const stairs = ['M','N','O'];
+      for (const c of stairs) {
+        if (state[`GG0170${c}_ad`] === '06')
+          return `<strong>GG0100C=1</strong> (Prior: Dependent on stairs) with <strong>GG0170${c}=06</strong> (Current: Independent). Improvement on stairs without rehab is clinically unusual — verify.`;
+      }
+      return null;
+    }
+  },
+
+  { id:'prior_dep_cog_now_alert', sev:'warning', label:'GG0100D Prior Dependent Cognition vs. M1700 Alert', items:['GG0100D','M1700'],
+    check() {
+      const prior = g100('GG0100D'), curr = mNum('M1700');
+      if (prior !== 1 || curr === null) return null;
+      if (curr === 0)
+        return '<strong>GG0100D=1</strong> (Prior: Dependent functional cognition) with <strong>M1700=0</strong> (Current: Alert/Oriented). Cognitive improvement to fully alert is clinically unusual — verify documentation.';
+      return null;
+    }
+  },
+
+  // ━━ NEW SOFT CHECKS — verification prompts (gray area) ━━
+
+  { id:'pain_unable_alert', sev:'soft', label:'M1242 Unable to Assess Pain vs. M1700 Alert', items:['M1242','M1700'],
+    check() {
+      const p=state['M1242'], cg=mNum('M1700');
+      if (p !== 'NA' || cg === null) return null;
+      if (cg <= 1)
+        return '<strong>M1242=NA</strong> (Unable to assess pain) with <strong>M1700≤1</strong> (Alert or requires prompting). Alert patients can typically self-report pain — consider reattempting assessment.';
+      return null;
+    }
+  },
+
+  { id:'phq2_unable_alert', sev:'soft', label:'M1730 PHQ-2 Unable vs. M1700 Alert', items:['M1730','M1700'],
+    check() {
+      const p=state['M1730'], cg=mNum('M1700');
+      if (p !== 'NA' || cg === null) return null;
+      if (cg <= 1)
+        return '<strong>M1730=NA</strong> (Unable to conduct PHQ-2) with <strong>M1700≤1</strong> (Alert/communicative). PHQ-2 should be conducted in alert patients — consider reattempting.';
+      return null;
+    }
+  },
+
+  { id:'anxiety_no_depression', sev:'soft', label:'M1720 Constant Anxiety vs. M1730 PHQ-2 Negative', items:['M1720','M1730'],
+    check() {
+      const a=mNum('M1720'), d=mNum('M1730');
+      if (a===null || d===null) return null;
+      if (a===3 && d===0)
+        return '<strong>M1720=3</strong> (Anxious all the time) with <strong>M1730=0</strong> (PHQ-2 negative). Anxiety and depression frequently co-occur — consider PHQ-9 follow-up to characterize mood.';
+      return null;
+    }
+  },
+
+  { id:'ui_timed_void_deferred', sev:'soft', label:'M1610 Incontinent vs. M1615 Timed-Void Deferred', items:['M1610','M1615'],
+    check() {
+      if (state['M1610'] === '1' && state['M1615'] === '0')
+        return '<strong>M1610=1</strong> (Incontinent) with <strong>M1615=0</strong> (Timed-voiding deferred). Deferring timing on an actively incontinent patient is unusual — consider documenting timing pattern.';
+      return null;
+    }
+  },
+
+  { id:'severe_cog_no_symptoms', sev:'soft', label:'M1700 Severe Cognition vs. M1740 No Symptoms', items:['M1700','M1740'],
+    check() {
+      const cg=mNum('M1700');
+      if (cg === null || cg < 4) return null;
+      let any = false;
+      for (let i = 0; i < 7; i++) if (isChecked('M1740-checks', i)) { any = true; break; }
+      if (!any)
+        return '<strong>M1700≥4</strong> (No consistent communication or totally dependent) with <strong>M1740</strong> nothing checked. Severe cognitive impairment typically presents with observable symptoms — verify or check "None of the above" if truly absent.';
+      return null;
+    }
+  },
+
+  { id:'no_education_cog_imp_med_reminders', sev:'soft', label:'M2010 No Education + Cognitive Impairment + Med Reminders', items:['M2010','M1700','M2020'],
+    check() {
+      const ed=state['M2010'], cg=mNum('M1700'), om=mNum('M2020');
+      if (ed !== '0' || cg === null || om === null) return null;
+      if (cg >= 2 && om === 1)
+        return '<strong>M2010=0</strong> (No drug education provided) with <strong>M1700≥2</strong> (cognitive impairment) and <strong>M2020=1</strong> (manages oral meds with reminders). Caregiver education is likely indicated.';
+      return null;
+    }
+  },
+
+  { id:'phq2_pos_no_phq9', sev:'soft', label:'M1730 PHQ-2 Positive but PHQ-9 Not Done', items:['M1730'],
+    check() {
+      if (state['M1730'] === '2')
+        return '<strong>M1730=2</strong> (PHQ-2 positive but PHQ-9 not administered). PHQ-9 should be completed for any positive PHQ-2 to characterize depression severity.';
+      return null;
+    }
+  },
+
+  { id:'wheelchair_wheel_unscored', sev:'soft', label:'M1860 Wheelchair vs. GG0170R/S Unscored', items:['M1860','GG0170'],
+    check() {
+      const a=mNum('M1860');
+      if (a === null || (a !== 4 && a !== 5)) return null;
+      if (!state['GG0170R_ad'] && !state['GG0170S_ad'])
+        return `<strong>M1860=${a}</strong> (Wheelchair-bound) but neither <strong>GG0170R</strong> (Wheel 50 ft) nor <strong>GG0170S</strong> (Wheel 150 ft) has been scored. Wheelchair patients should be assessed on wheeling tasks.`;
+      return null;
+    }
+  },
+
+  { id:'prior_help_self_care_now_indep', sev:'soft', label:'GG0100A Prior Needed Help vs. Current GG0130 Independent', items:['GG0100A','GG0130'],
+    check() {
+      if (g100('GG0100A') !== 2) return null;
+      const items = ['A','B','C','E','F','G','H'];
+      for (const c of items) {
+        if (state[`GG0130${c}_ad`] === '06')
+          return `<strong>GG0100A=2</strong> (Prior: Needed help with self-care) with <strong>GG0130${c}=06</strong> (Current: Independent). Improvement is possible but worth verifying documentation supports it.`;
+      }
+      return null;
+    }
+  },
+
+  { id:'prior_help_mob_now_indep_walk', sev:'soft', label:'GG0100B Prior Needed Help vs. Current Walking Independent', items:['GG0100B','GG0170'],
+    check() {
+      if (g100('GG0100B') !== 2) return null;
+      const walks = ['I','J','K'];
+      for (const c of walks) {
+        if (state[`GG0170${c}_ad`] === '06')
+          return `<strong>GG0100B=2</strong> (Prior: Needed help with indoor mobility) with <strong>GG0170${c}=06</strong> (Current: Independent). Possible improvement — verify documentation.`;
+      }
+      return null;
+    }
+  },
+
+  { id:'prior_help_stairs_now_indep', sev:'soft', label:'GG0100C Prior Needed Help vs. Current Stairs Independent', items:['GG0100C','GG0170'],
+    check() {
+      if (g100('GG0100C') !== 2) return null;
+      const stairs = ['M','N','O'];
+      for (const c of stairs) {
+        if (state[`GG0170${c}_ad`] === '06')
+          return `<strong>GG0100C=2</strong> (Prior: Needed help with stairs) with <strong>GG0170${c}=06</strong> (Current: Independent). Possible improvement — verify documentation.`;
+      }
+      return null;
+    }
+  }
+
+];
+
+// ══════════════════════════════════════════════════
+// CONFLICT UI
+// ══════════════════════════════════════════════════
+let conflictsOpen = false;
+const conflictItemsAffected = new Set();
+
+const SEV_RANK = { error: 3, warning: 2, soft: 1 };
+const SEV_CLS  = { error: 'err',  warning: 'warn',  soft: 'soft' };
+const SEV_FL   = { error: 'fl-err', warning: 'fl-warn', soft: 'fl-soft' };
+const SEV_ICON = { error: '🔴', warning: '🟡', soft: '🔵' };
+
+function runConflicts() {
+  const found = RULES.map(r => { try { const m=r.check(); return m ? {...r, msg:m} : null; } catch(e){return null;} }).filter(Boolean);
+
+  // Reset highlights
+  document.querySelectorAll('.item-card.fl-err, .item-card.fl-warn, .item-card.fl-soft').forEach(el => el.classList.remove('fl-err','fl-warn','fl-soft'));
+  document.querySelectorAll('.gg-table tr.gg-fl-err, .gg-table tr.gg-fl-warn, .gg-table tr.gg-fl-soft').forEach(el => el.classList.remove('gg-fl-err','gg-fl-warn','gg-fl-soft'));
+
+  // Apply highest-severity class per item card so errors win when an item is hit by multiple rules
+  const itemSev = new Map();
+  found.forEach(f => {
+    f.items.forEach(id => {
+      const cur = itemSev.get(id);
+      if (!cur || SEV_RANK[f.sev] > SEV_RANK[cur]) itemSev.set(id, f.sev);
+    });
+  });
+  itemSev.forEach((sev, id) => {
+    const card = document.querySelector(`[data-item="${id}"]`);
+    if (card) card.classList.add(SEV_FL[sev]);
+  });
+
+  const panel = document.getElementById('conflict-panel');
+  if (!found.length) { panel.className = ''; panel.style.display = 'none'; return; }
+
+  const errs  = found.filter(f=>f.sev==='error');
+  const warns = found.filter(f=>f.sev==='warning');
+  const softs = found.filter(f=>f.sev==='soft');
+
+  panel.className = errs.length ? 'has-errors' : warns.length ? 'has-warnings' : 'has-soft';
+  panel.style.display = 'block';
+
+  document.getElementById('conflict-badges').innerHTML =
+    (errs.length  ? `<span class="c-badge err">🔴 ${errs.length} Error${errs.length>1?'s':''}</span> `   : '') +
+    (warns.length ? `<span class="c-badge warn">🟡 ${warns.length} Warning${warns.length>1?'s':''}</span> ` : '') +
+    (softs.length ? `<span class="c-badge soft">🔵 ${softs.length} Soft</span>` : '');
+
+  document.getElementById('conflict-note').textContent =
+    errs.length  ? 'Scoring conflicts detected — verify before submitting' :
+    warns.length ? 'Scoring concerns — review before submitting' :
+                   'Verification suggestions — review at your discretion';
+
+  // Sort: errors first, warnings, then soft
+  const sorted = [...errs, ...warns, ...softs];
+  document.getElementById('conflict-list').innerHTML = sorted.map(f=>`
+    <div class="c-item ${SEV_CLS[f.sev]}">
+      <span style="font-size:12px;flex-shrink:0">${SEV_ICON[f.sev]}</span>
+      <div><div class="c-rule">${f.label}</div><div class="c-msg">${f.msg}</div></div>
+    </div>`).join('');
+
+  document.getElementById('conflict-toggle-lbl').textContent = conflictsOpen ? '▲ Hide details' : '▼ Show details';
+  document.getElementById('conflict-list').className = 'conflict-list' + (conflictsOpen ? ' open' : '');
+}
+
+function toggleConflicts() {
+  conflictsOpen = !conflictsOpen;
+  document.getElementById('conflict-list').className = 'conflict-list' + (conflictsOpen ? ' open' : '');
+  document.getElementById('conflict-toggle-lbl').textContent = conflictsOpen ? '▲ Hide details' : '▼ Show details';
+}
+
+// ══════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════
+function makePill(cid, val, desc, mStyle) {
+  const el = document.createElement('div');
+  el.className = 'pill' + (mStyle?' m-style':'') + (desc.length>22?' wide':'');
+  el.dataset.cid = cid;
+  el.innerHTML = `<span class="pill-code">${val}</span><span class="pill-desc">${desc}</span>`;
+  el.addEventListener('click', () => {
+    const was = el.classList.contains('selected');
+    document.querySelectorAll(`.pill[data-cid="${cid}"]`).forEach(p=>p.classList.remove('selected'));
+    if (!was) el.classList.add('selected');
+    setState(cid, was ? null : val);
+  });
+  return el;
+}
+
+function renderPills(id, opts, mStyle) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  opts.forEach(o => c.appendChild(makePill(id, o.v, o.d, mStyle)));
+}
+
+function renderGG0100(id) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  GG0100_CODES.forEach(o => c.appendChild(makePill(id, o.v, o.d, false)));
+}
+
+function renderGGTable(tbodyId, items, prefix) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  items.forEach(item => {
+    const rk = prefix + item.code + '_ad';
+    const tr = document.createElement('tr');
+    tr.dataset.rowKey = rk;
+    tr.innerHTML = `
+      <td class="row-label""><b>${prefix}${item.code}</b> &nbsp;${item.label}</td>
+      <td style="background:#f8faff!important"></td>
+      ${GG_CODES.map(c=>`<td class="score-cell" data-row="${rk}" data-val="${c}"><div class="dot">${c}</div></td>`).join('')}`;
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll('.score-cell').forEach(td => {
+    td.addEventListener('click', () => {
+      const rk=td.dataset.row, val=td.dataset.val;
+      const was=td.classList.contains('sel');
+      tbody.querySelectorAll(`.score-cell[data-row="${rk}"]`).forEach(s=>s.classList.remove('sel'));
+      if (!was) td.classList.add('sel');
+      setState(rk, was ? null : val);
+    });
+  });
+}
+
+function renderChecks(id, opts) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  opts.forEach(opt => {
+    const el = document.createElement('div');
+    el.className = 'check-pill';
+    el.innerHTML = `<div class="cbox"></div>${opt}`;
+    el.addEventListener('click', () => {
+      el.classList.toggle('checked');
+      el.querySelector('.cbox').innerHTML = el.classList.contains('checked') ? '✓' : '';
+      saveChecks();
+      runConflicts();
+    });
+    c.appendChild(el);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// LOCALSTORAGE PERSISTENCE
+// ══════════════════════════════════════════════════
+const LS_STATE  = 'oasis_state';
+const LS_FIELDS = 'oasis_fields';
+const LS_CHECKS = 'oasis_checks';
+
+function saveFields() {
+  const fields = {};
+  ['pt-patient','pt-mrn','pt-dob','pt-physician','pt-agency'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) fields[id] = el.value;
+  });
+  try { localStorage.setItem(LS_FIELDS, JSON.stringify(fields)); } catch(e) {}
+}
+
+function saveChecks() {
+  const checks = {};
+  document.querySelectorAll('.check-pill').forEach((el, i) => {
+    checks[i] = el.classList.contains('checked');
+  });
+  try { localStorage.setItem(LS_CHECKS, JSON.stringify(checks)); } catch(e) {}
+}
+
+function restoreAll() {
+  // Restore scored state
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS_STATE) || '{}');
+    Object.assign(state, saved);
+    // Restore pills
+    document.querySelectorAll('.pill[data-cid]').forEach(el => {
+      if (state[el.dataset.cid] === el.querySelector('.pill-code').textContent)
+        el.classList.add('selected');
+    });
+    // Restore GG table cells
+    document.querySelectorAll('.score-cell[data-row]').forEach(td => {
+      if (state[td.dataset.row] === td.dataset.val) td.classList.add('sel');
+    });
+  } catch(e) {}
+
+  // Restore patient fields
+  try {
+    const fields = JSON.parse(localStorage.getItem(LS_FIELDS) || '{}');
+    Object.entries(fields).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    });
+  } catch(e) {}
+
+  // Restore checkboxes
+  try {
+    const checks = JSON.parse(localStorage.getItem(LS_CHECKS) || '{}');
+    document.querySelectorAll('.check-pill').forEach((el, i) => {
+      if (checks[i]) {
+        el.classList.add('checked');
+        el.querySelector('.cbox').innerHTML = '✓';
+      }
+    });
+  } catch(e) {}
+
+  runConflicts();
+}
+
+function clearAll() {
+  if (!confirm('Clear all scores and patient info for this sheet?')) return;
+  Object.keys(state).forEach(k => delete state[k]);
+  document.querySelectorAll('.pill.selected').forEach(e=>e.classList.remove('selected'));
+  document.querySelectorAll('.score-cell.sel').forEach(e=>e.classList.remove('sel'));
+  document.querySelectorAll('.check-pill.checked').forEach(e=>{
+    e.classList.remove('checked'); e.querySelector('.cbox').innerHTML='';
+  });
+  ['pt-patient','pt-mrn','pt-dob','pt-physician','pt-agency'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  try { localStorage.removeItem(LS_STATE); localStorage.removeItem(LS_FIELDS); localStorage.removeItem(LS_CHECKS); } catch(e) {}
+  runConflicts();
+}
+
+// ── INIT ──
+['GG0100A','GG0100B','GG0100C','GG0100D'].forEach(id => renderGG0100(id));
+renderGGTable('GG0130-body', GG0130_ITEMS, 'GG0130');
+renderGGTable('GG0170-body', GG0170_ITEMS, 'GG0170');
+Object.entries(M_ITEMS).forEach(([id,opts]) => renderPills(id, opts, true));
+renderChecks('M1033-checks', M1033_OPTIONS);
+renderChecks('M1740-checks', M1740_OPTIONS);
+
+// Patient field listeners
+['pt-patient','pt-mrn','pt-dob','pt-physician','pt-agency'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', saveFields);
+});
+
+// ── PRINT & OPEN IN TAB ──────────────────────────────────────────────────────
+function inIframe() {
+  try { return window.self !== window.top; } catch(e) { return true; }
+}
+
+document.getElementById('btn-print').addEventListener('click', () => {
+  if (inIframe()) {
+    // Can't print from inside an iframe — open standalone and print from there
+    openInTab(true);
+  } else {
+    setTimeout(() => window.print(), 80);
+  }
+});
+
+document.getElementById('btn-newtab').addEventListener('click', () => openInTab(false));
+
+function openInTab(andPrint) {
+  const html = document.documentElement.outerHTML;
+  const blob  = new Blob([html], { type: 'text/html' });
+  const url   = URL.createObjectURL(blob);
+  const win   = window.open(url, '_blank');
+  if (andPrint && win) {
+    // Give the new tab time to load, then trigger print
+    win.addEventListener('load', () => setTimeout(() => win.print(), 300));
+  }
+  // Clean up blob URL after a delay
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
+// Restore saved data after DOM is fully rendered
+restoreAll();
+</script>
+</body>
+</html>

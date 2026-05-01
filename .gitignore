@@ -1,0 +1,10 @@
+# Claude Code local-only settings
+.claude/settings.local.json
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Editor swap files
+*.swp
+*~
