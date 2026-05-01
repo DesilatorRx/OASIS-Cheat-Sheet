@@ -1270,18 +1270,21 @@ function makePill(cid, val, desc, mStyle) {
 function renderPills(id, opts, mStyle) {
   const c = document.getElementById(id);
   if (!c) return;
+  c.innerHTML = '';
   opts.forEach(o => c.appendChild(makePill(id, o.v, o.d, mStyle)));
 }
 
 function renderGG0100(id) {
   const c = document.getElementById(id);
   if (!c) return;
+  c.innerHTML = '';
   GG0100_CODES.forEach(o => c.appendChild(makePill(id, o.v, o.d, false)));
 }
 
 function renderGGTable(tbodyId, items, prefix) {
   const tbody = document.getElementById(tbodyId);
   if (!tbody) return;
+  tbody.innerHTML = '';
   items.forEach(item => {
     const rk = prefix + item.code + '_ad';
     const tr = document.createElement('tr');
@@ -1307,6 +1310,7 @@ function renderGGTable(tbodyId, items, prefix) {
 function renderChecks(id, opts) {
   const c = document.getElementById(id);
   if (!c) return;
+  c.innerHTML = '';
   opts.forEach(opt => {
     const el = document.createElement('div');
     el.className = 'check-pill';
@@ -1430,15 +1434,34 @@ document.getElementById('btn-print').addEventListener('click', () => {
 document.getElementById('btn-newtab').addEventListener('click', () => openInTab(false));
 
 function openInTab(andPrint) {
-  const html = document.documentElement.outerHTML;
-  const blob  = new Blob([html], { type: 'text/html' });
-  const url   = URL.createObjectURL(blob);
-  const win   = window.open(url, '_blank');
+  // The cloned page lives at a blob:// origin with its own localStorage, so we ship state
+  // inline as a seed <script> that runs before the main script reads localStorage.
+  // safe() escapes HTML script-end and comment sequences so embedded data can't break out.
+  const safe = obj => JSON.stringify(JSON.stringify(obj))
+    .replace(/<\/script/gi, '<\\/script')
+    .replace(/<!--/g, '<\\!--');
+
+  const fields = JSON.parse(localStorage.getItem(LS_FIELDS) || '{}');
+  const checks = JSON.parse(localStorage.getItem(LS_CHECKS) || '{}');
+
+  const seed = '<script>try{' +
+    'localStorage.setItem(' + JSON.stringify(LS_STATE)  + ',' + safe(state)  + ');' +
+    'localStorage.setItem(' + JSON.stringify(LS_FIELDS) + ',' + safe(fields) + ');' +
+    'localStorage.setItem(' + JSON.stringify(LS_CHECKS) + ',' + safe(checks) + ');' +
+    '}catch(e){}<\/script>';
+
+  // Render functions are idempotent (they clear before populating), so duplicates won't stack
+  // when the cloned <script> re-runs against the snapshotted DOM. Doctype is prepended because
+  // outerHTML drops it — without it the new tab loads in quirks mode.
+  const html = '<!DOCTYPE html>\n' +
+    document.documentElement.outerHTML.replace('</head>', seed + '</head>');
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
   if (andPrint && win) {
-    // Give the new tab time to load, then trigger print
     win.addEventListener('load', () => setTimeout(() => win.print(), 300));
   }
-  // Clean up blob URL after a delay
   setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
 
