@@ -53,12 +53,14 @@ Scores, patient demographics, and multi-check selections persist via `localStora
 
 ## Running it
 
-Open `OASIS-E_Cheat_Sheet.html` in any modern browser. That's it — no server, no dependencies beyond Google Fonts (loaded over the network for typography).
+Open `index.html` in any modern browser. That's it — no server, no dependencies beyond Google Fonts (loaded over the network for typography).
+
+The repo is also deployment-ready for any static host (Vercel, GitHub Pages, Netlify) — push to a connected service and the root URL serves the cheat sheet.
 
 ## Project structure
 
 ```
-OASIS-E_Cheat_Sheet.html   — the entire app (HTML, CSS, JS inline)
+index.html      — the entire app (HTML, CSS, JS inline)
 .gitignore
 README.md
 ```
