@@ -1548,12 +1548,22 @@ function inIframe() {
   try { return window.self !== window.top; } catch(e) { return true; }
 }
 
+// iOS Safari snapshots whatever is rendered when window.print() fires. If web fonts
+// are mid-load, the snapshot can truncate the tail of the document. Wait for fonts.ready
+// (and a small layout-settle delay) before triggering print.
+function waitForFonts(doc) {
+  if (doc.fonts && doc.fonts.ready) {
+    return doc.fonts.ready.then(() => new Promise(r => setTimeout(r, 250)));
+  }
+  return new Promise(r => setTimeout(r, 500));
+}
+
 document.getElementById('btn-print').addEventListener('click', () => {
   if (inIframe()) {
     // Can't print from inside an iframe — open standalone and print from there
     openInTab(true);
   } else {
-    setTimeout(() => window.print(), 80);
+    waitForFonts(document).then(() => window.print());
   }
 });
 
@@ -1589,7 +1599,7 @@ function openInTab(andPrint) {
   const url  = URL.createObjectURL(blob);
   const win  = window.open(url, '_blank');
   if (andPrint && win) {
-    win.addEventListener('load', () => setTimeout(() => win.print(), 300));
+    win.addEventListener('load', () => waitForFonts(win.document).then(() => win.print()));
   }
   setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
