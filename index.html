@@ -1570,13 +1570,22 @@ function waitForFonts(doc) {
   const win = doc.defaultView || window;
   const ready = (doc.fonts && doc.fonts.ready) ? doc.fonts.ready : Promise.resolve();
   return ready.then(() => {
-    // Force iOS Safari to lay out the full document height instead of lazy-rendering below the fold.
+    // Force iOS Safari/Chrome to lay out the full document height instead of lazy-rendering
+    // below the fold. Scroll to bottom + read scrollHeight forces a full layout pass.
     void doc.body.scrollHeight;
     void doc.documentElement.scrollHeight;
     win.scrollTo(0, doc.body.scrollHeight);
+    void doc.body.offsetHeight;
     win.scrollTo(0, 0);
+    void doc.body.offsetHeight;
     return new Promise(r => {
-      requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(r, 800)));
+      // Two paint cycles plus a long settle delay — iOS Chrome's print pipeline is slower
+      // than Safari's and needs more time before the snapshot is reliable.
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() =>
+          setTimeout(r, 2500)
+        )
+      );
     });
   });
 }
