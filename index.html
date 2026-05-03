@@ -179,7 +179,7 @@
   .spacer { height: 8px; background: var(--paper); }
 
   @media print {
-    body { background: white; font-size: 9px; }
+    body { background: white; font-size: 8.5px; }
     .no-print { display: none !important; }
     #conflict-panel { position: static !important; }
     #conflict-panel.has-errors, #conflict-panel.has-warnings, #conflict-panel.has-soft { display: block !important; }
@@ -192,21 +192,43 @@
     .item-card.fl-err, .item-card.fl-warn, .item-card.fl-soft,
     .gg-table tr.gg-fl-err td, .gg-table tr.gg-fl-warn td, .gg-table tr.gg-fl-soft td
     { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    /* Keep entire item cards, individual pills, and table rows together on one page */
-    .item-card, .pill, .check-pill, .gg-table tr {
+    /* Compact print spacing — iOS hits a page-count cap, so reduce pages */
+    .page-header { padding: 6px 12px 5px; }
+    .page-header h1 { font-size: 16px; }
+    .pt-fields { padding: 4px 12px; gap: 8px; }
+    .toolbar { display: none; }
+    .section-header { padding: 4px 12px; font-size: 11px; }
+    .sub-header { padding: 2px 10px; }
+    .legend-bar { padding: 4px 12px; gap: 4px 10px; }
+    .item-card { padding: 4px 9px 5px; }
+    .item-label { margin-bottom: 2px; font-size: 9.5px; }
+    .scores { gap: 2px; }
+    .pill { padding: 2px 5px; min-width: 32px; }
+    .pill-code { font-size: 10px; }
+    .pill-desc { font-size: 7.5px; max-width: 58px; }
+    .spacer { display: none; }
+    /* Use CSS columns instead of grid — iOS handles break-inside better with columns,
+       and 2-column print roughly halves page count vs single-column */
+    .items-grid {
+      display: block !important;
+      column-count: 2;
+      column-gap: 4px;
+      column-fill: balance;
+    }
+    .item-card {
+      display: block;
+      break-inside: avoid; page-break-inside: avoid;
+      -webkit-column-break-inside: avoid;
+      margin: 0 0 2px;
+    }
+    .item-card.full-width, .sub-header { column-span: all; -webkit-column-span: all; }
+    .pill, .check-pill, .gg-table tr {
       break-inside: avoid; page-break-inside: avoid;
       -webkit-column-break-inside: avoid;
     }
-    /* Don't strand a section/sub-header at the bottom of a page */
     .section-header, .sub-header { break-after: avoid; page-break-after: avoid; }
-    /* Headers and pill rows should also not split internally */
     .scores, .check-group { break-inside: avoid; page-break-inside: avoid; }
-    /* iOS Safari ignores break-inside on CSS-grid children. Drop the grid in print
-       so each card becomes a normal block — the avoid-break rules then apply correctly. */
-    .items-grid { display: block !important; }
-    .item-card.full-width, .item-card { width: 100%; }
-    .sub-header { display: block; }
-    @page { margin: 0.4in; size: letter; }
+    @page { margin: 0.35in; size: letter; }
   }
 </style>
 </head>
