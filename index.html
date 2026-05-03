@@ -192,6 +192,12 @@
     .item-card.fl-err, .item-card.fl-warn, .item-card.fl-soft,
     .gg-table tr.gg-fl-err td, .gg-table tr.gg-fl-warn td, .gg-table tr.gg-fl-soft td
     { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    /* Keep entire item cards, individual pills, and table rows together on one page */
+    .item-card, .pill, .check-pill, .gg-table tr { break-inside: avoid; page-break-inside: avoid; }
+    /* Don't strand a section/sub-header at the bottom of a page */
+    .section-header, .sub-header { break-after: avoid; page-break-after: avoid; }
+    /* Headers and pill rows should also not split internally */
+    .scores, .check-group { break-inside: avoid; page-break-inside: avoid; }
     @page { margin: 0.4in; size: letter; }
   }
 </style>
