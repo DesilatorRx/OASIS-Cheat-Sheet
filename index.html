@@ -298,8 +298,9 @@
   <div class="item-card" data-item="M1820"><div class="item-code m-code">M1820</div><div class="item-label">Current Ability to Dress Lower Body</div><div class="scores" id="M1820"></div></div>
   <div class="item-card" data-item="M1830"><div class="item-code m-code">M1830</div><div class="item-label">Bathing</div><div class="scores" id="M1830"></div></div>
   <div class="item-card" data-item="M1840"><div class="item-code m-code">M1840</div><div class="item-label">Toilet Transferring</div><div class="scores" id="M1840"></div></div>
+  <div class="item-card" data-item="M1845"><div class="item-code m-code">M1845</div><div class="item-label">Toileting Hygiene</div><div class="scores" id="M1845"></div></div>
   <div class="item-card" data-item="M1850"><div class="item-code m-code">M1850</div><div class="item-label">Transferring</div><div class="scores" id="M1850"></div></div>
-  <div class="item-card full-width" data-item="M1860"><div class="item-code m-code">M1860</div><div class="item-label">Ambulation / Locomotion</div><div class="scores" id="M1860"></div></div>
+  <div class="item-card" data-item="M1860"><div class="item-code m-code">M1860</div><div class="item-label">Ambulation / Locomotion</div><div class="scores" id="M1860"></div></div>
 
   <div class="sub-header m-sub">Medications</div>
   <div class="item-card" data-item="M2003"><div class="item-code m-code">M2003</div><div class="item-label">Medication Follow-up</div><div class="scores" id="M2003"></div></div>
@@ -367,7 +368,8 @@ const M_ITEMS = {
   M1820:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Needs help — some tasks'},{v:'3',d:'Dependent'}],
   M1830:[{v:'0',d:'Indep — no equip'},{v:'1',d:'With bath equip'},{v:'2',d:'Help in/out'},{v:'3',d:'Help — bath & in/out'},{v:'4',d:'Help — bath, attendant'},{v:'5',d:'Unable to bathe self'},{v:'6',d:'Dependent — all'}],
   M1840:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Help — transfer only'},{v:'3',d:'Help — transfer & hygiene'},{v:'4',d:'Total dependence'},{v:'NA',d:'Bedbound/no toilet'}],
-  M1850:[{v:'0',d:'Independent'},{v:'1',d:'Indep with device'},{v:'2',d:'Help — 1 person'},{v:'3',d:'Help — 2+ people'},{v:'4',d:'Bedbound / unable'}],
+  M1845:[{v:'0',d:'Independent'},{v:'1',d:'Supplies set up'},{v:'2',d:'Help — hygiene/clothes'},{v:'3',d:'Dependent'}],
+  M1850:[{v:'0',d:'Independent'},{v:'1',d:'Min assist / device'},{v:'2',d:'Bears weight, pivots'},{v:'3',d:'Unable — no weight/pivot'},{v:'4',d:'Bedfast — repositions'},{v:'5',d:'Bedfast — total'}],
   M1860:[{v:'0',d:'Independent'},{v:'1',d:'Indep — assistive device'},{v:'2',d:'Supervised ambulation'},{v:'3',d:'Guarded ambulation'},{v:'4',d:'Wheelchair — self'},{v:'5',d:'Wheelchair — assist'},{v:'6',d:'Bedbound / non-amb'}],
   M2003:[{v:'0',d:'Not indicated'},{v:'1',d:'Indicated, completed'},{v:'2',d:'Indicated, not completed'}],
   M2005:[{v:'0',d:'No action'},{v:'1',d:'Clinician intervention'}],
@@ -438,7 +440,7 @@ const RULES = [
     check() {
       const tr=mNum('M1850'), am=mNum('M1860');
       if(tr===null||am===null) return null;
-      if(tr>=4 && am<=1) return '<strong>M1850=4</strong> (Bedbound) contradicts <strong>M1860≤1</strong> (Independent/Device ambulation). A patient documented as bedbound cannot independently ambulate.';
+      if(tr>=4 && am<=1) return '<strong>M1850≥4</strong> (Bedfast) contradicts <strong>M1860≤1</strong> (Independent/Device ambulation). A bedfast patient cannot independently ambulate.';
       return null;
     }
   },
@@ -447,7 +449,7 @@ const RULES = [
     check() {
       const tr=mNum('M1850'), tl=mNum('M1840');
       if(tr===null||tl===null) return null;
-      if(tr>=4 && tl<=1) return '<strong>M1850=4</strong> (Bedbound) contradicts <strong>M1840≤1</strong> (Independent/Device toilet transfer). A bedbound patient cannot independently toilet transfer.';
+      if(tr>=4 && tl<=1) return '<strong>M1850≥4</strong> (Bedfast) contradicts <strong>M1840≤1</strong> (Independent/Device toilet transfer). A bedfast patient cannot independently toilet transfer.';
       return null;
     }
   },
@@ -523,7 +525,7 @@ const RULES = [
     check() {
       const tl=mNum('M1840'), tr=mNum('M1850');
       if(tl===null||tr===null) return null;
-      if(tl<=1 && tr>=3) return '<strong>M1840≤1</strong> (Independent/Device toilet transfer) is inconsistent with <strong>M1850≥3</strong> (needs 2+ people to transfer). Toilet transfer ability typically requires comparable or greater skill than general transfers.';
+      if(tl<=1 && tr>=3) return '<strong>M1840≤1</strong> (Independent/Device toilet transfer) is inconsistent with <strong>M1850≥3</strong> (unable to transfer self). Toilet transfer ability typically requires comparable or greater skill than general transfers.';
       if(tl > tr+1) return '<strong>M1840</strong> (Toilet Transfer) implies significantly more dependence than <strong>M1850</strong> (General Transfer). Toilet transfer is rarely harder by more than 1 level — verify.';
       return null;
     }
@@ -552,7 +554,7 @@ const RULES = [
     check() {
       const bt=mNum('M1830'), tr=mNum('M1850');
       if(bt===null||tr===null) return null;
-      if(bt<=1 && tr>=3) return '<strong>M1830≤1</strong> (Independent/Equipment bathing) conflicts with <strong>M1850≥3</strong> (needs 2+ people to transfer). Bathing requires transfer ability — verify both.';
+      if(bt<=1 && tr>=3) return '<strong>M1830≤1</strong> (Independent/Equipment bathing) conflicts with <strong>M1850≥3</strong> (unable to transfer self). Bathing requires transfer ability — verify both.';
       return null;
     }
   },
@@ -699,7 +701,7 @@ const RULES = [
     check() {
       const m = mNum('M1850'), g = ggDep('GG0170E_ad');
       if (m === null || g === null) return null;
-      const expected = [1,2,3,4,5][m];
+      const expected = [1,2,3,4,5,5][m];
       if (Math.abs(g - expected) >= 3)
         return `<strong>M1850=${m}</strong> conflicts with <strong>GG0170E=${state['GG0170E_ad']}</strong>. Both items measure chair/bed transfer ability.`;
       return null;
@@ -831,7 +833,7 @@ const RULES = [
       if (r !== 0) return null;
       const am = mNum('M1860'), tr = mNum('M1850');
       if ((am !== null && am >= 5) || (tr !== null && tr >= 3))
-        return '<strong>M1302=0</strong> (No pressure injury risk) is inconsistent with <strong>M1860≥5</strong> (wheelchair-assist or bedbound) or <strong>M1850≥3</strong> (needs 2+ to transfer). Immobility is an inherent risk factor.';
+        return '<strong>M1302=0</strong> (No pressure injury risk) is inconsistent with <strong>M1860≥5</strong> (wheelchair-assist or bedbound) or <strong>M1850≥3</strong> (unable to transfer self / bedfast). Immobility is an inherent risk factor.';
       return null;
     }
   },
@@ -906,7 +908,7 @@ const RULES = [
       const a=mNum('M1860'), t=mNum('M1850');
       if (a===null || t===null) return null;
       if (a===6 && t<=1)
-        return '<strong>M1860=6</strong> (Bedbound, non-ambulatory) contradicts <strong>M1850≤1</strong> (independent or device-only transfer). Bedbound status precludes independent transfers.';
+        return '<strong>M1860=6</strong> (Bedbound, non-ambulatory) contradicts <strong>M1850≤1</strong> (independent or minimal-assist transfer). Bedbound status precludes independent transfers.';
       return null;
     }
   },
