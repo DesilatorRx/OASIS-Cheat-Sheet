@@ -366,7 +366,15 @@ const M_ITEMS = {
   M1800:[{v:'0',d:'Independent'},{v:'1',d:'With grooming device'},{v:'2',d:'Needs help — some tasks'},{v:'3',d:'Dependent'}],
   M1810:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Needs help — some tasks'},{v:'3',d:'Dependent'}],
   M1820:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Needs help — some tasks'},{v:'3',d:'Dependent'}],
-  M1830:[{v:'0',d:'Indep — no equip'},{v:'1',d:'With bath equip'},{v:'2',d:'Help in/out'},{v:'3',d:'Help — bath & in/out'},{v:'4',d:'Help — bath, attendant'},{v:'5',d:'Unable to bathe self'},{v:'6',d:'Dependent — all'}],
+  M1830:[
+    {v:'0',d:'Shower/tub — indep',                       t:'Able to bathe self in shower or tub independently, including getting in and out of tub or shower.'},
+    {v:'1',d:'Shower/tub — w/ device',                   t:'With the use of devices, is able to bathe self in shower or tub independently, including getting in and out of the shower or tub.'},
+    {v:'2',d:'Shower/tub — intermittent help',           t:'Able to bathe in shower or tub with the intermittent assistance of another person: (a) for intermittent supervision or encouragement or reminders, OR (b) to get in and out of the shower or tub, OR (c) for washing difficult to reach areas.'},
+    {v:'3',d:'Shower/tub — help throughout',             t:'Able to participate in bathing self in shower or tub, but requires presence of another person throughout the bath for assistance or supervision.'},
+    {v:'4',d:'Sink/chair/commode — indep',               t:'Unable to use the shower or tub, but able to bathe self independently with or without the use of devices at the sink, in chair, or on commode.'},
+    {v:'5',d:'Sink/chair/commode — w/ assist',           t:'Unable to use the shower or tub, but able to participate in bathing self in bed, at the sink, in bedside chair, or on the commode, with the assistance or supervision of another person.'},
+    {v:'6',d:'Totally bathed by another',                t:'Unable to participate effectively in bathing and is bathed totally by another person.'}
+  ],
   M1840:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Help — transfer only'},{v:'3',d:'Help — transfer & hygiene'},{v:'4',d:'Total dependence'}],
   M1845:[{v:'0',d:'Independent'},{v:'1',d:'Supplies set up'},{v:'2',d:'Help — hygiene/clothes'},{v:'3',d:'Dependent'}],
   M1850:[{v:'0',d:'Independent'},{v:'1',d:'Min assist / device'},{v:'2',d:'Bears weight, pivots'},{v:'3',d:'Unable — no weight/pivot'},{v:'4',d:'Bedfast — repositions'},{v:'5',d:'Bedfast — total'}],
@@ -1234,10 +1242,11 @@ function toggleConflicts() {
 // ══════════════════════════════════════════════════
 // RENDER
 // ══════════════════════════════════════════════════
-function makePill(cid, val, desc, mStyle) {
+function makePill(cid, val, desc, mStyle, tooltip) {
   const el = document.createElement('div');
   el.className = 'pill' + (mStyle?' m-style':'') + (desc.length>22?' wide':'');
   el.dataset.cid = cid;
+  if (tooltip) el.title = tooltip;
   el.innerHTML = `<span class="pill-code">${val}</span><span class="pill-desc">${desc}</span>`;
   el.addEventListener('click', () => {
     const was = el.classList.contains('selected');
@@ -1252,7 +1261,7 @@ function renderPills(id, opts, mStyle) {
   const c = document.getElementById(id);
   if (!c) return;
   c.innerHTML = '';
-  opts.forEach(o => c.appendChild(makePill(id, o.v, o.d, mStyle)));
+  opts.forEach(o => c.appendChild(makePill(id, o.v, o.d, mStyle, o.t)));
 }
 
 function renderGG0100(id) {
