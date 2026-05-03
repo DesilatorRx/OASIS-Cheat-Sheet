@@ -385,7 +385,13 @@ const M_ITEMS = {
   M1615:[{v:'0',d:'Timed-void deferred'},{v:'1',d:'Nighttime only'},{v:'2',d:'Daytime only'},{v:'3',d:'Day & night'},{v:'4',d:'Constant — no sensation'},{v:'NA',d:'N/A (catheter)'}],
   M1620:[{v:'0',d:'Continent'},{v:'1',d:'< 1×/wk'},{v:'2',d:'1–3×/wk'},{v:'3',d:'4–6×/wk'},{v:'4',d:'Daily'},{v:'5',d:'No bowel pattern'},{v:'NA',d:'Ostomy'}],
   M1630:[{v:'0',d:'No ostomy'},{v:'1',d:'Ostomy — self-care'},{v:'2',d:'Ostomy — needs help'}],
-  M1700:[{v:'0',d:'Alert/oriented'},{v:'1',d:'Requires prompting'},{v:'2',d:'Requires assist'},{v:'3',d:'Requires constant assist'},{v:'4',d:'No consistent communication'},{v:'5',d:'Totally dependent'}],
+  M1700:[
+    {v:'0',d:'Alert/oriented',           t:'Alert/oriented, able to focus and shift attention, comprehends and recalls task directions independently.'},
+    {v:'1',d:'Prompting in stress',      t:'Requires prompting (cuing, repetition, reminders) only under stressful or unfamiliar conditions.'},
+    {v:'2',d:'Assist — specific tasks',  t:'Requires assistance and some direction in specific situations (e.g., on all tasks involving shifting attention) or consistently requires low stimulus environment due to distractibility.'},
+    {v:'3',d:'Considerable assist',      t:'Requires considerable assistance in routine situations. Is not alert and oriented or is unable to shift attention and recall directions more than half the time.'},
+    {v:'4',d:'Totally dependent',        t:'Totally dependent due to disturbances such as constant disorientation, coma, persistent vegetative state, or delirium.'}
+  ],
   M1710:[{v:'0',d:'Never'},{v:'1',d:'New/complex situations'},{v:'2',d:'Routine situations'},{v:'3',d:'Sometimes day/night'},{v:'4',d:'Constantly'},{v:'NA',d:'Non-verbal'}],
   M1720:[{v:'0',d:'None of time'},{v:'1',d:'< daily'},{v:'2',d:'Daily, not constant'},{v:'3',d:'All the time'},{v:'NA',d:'Cannot assess'}],
   M1730:[{v:'0',d:'PHQ-2 negative (0–2)'},{v:'1',d:'PHQ-2 pos → PHQ-9 given'},{v:'2',d:'PHQ-2 pos → no PHQ-9'},{v:'NA',d:'Unable to conduct'}],
@@ -410,7 +416,13 @@ const M_ITEMS = {
   M2005:[{v:'0',d:'No action'},{v:'1',d:'Clinician intervention'}],
   M2010:[{v:'0',d:'No'},{v:'1',d:'Yes'},{v:'NA',d:'Already knowledgeable'}],
   M2015:[{v:'0',d:'No'},{v:'1',d:'Yes'},{v:'NA',d:'Not on high-risk meds'}],
-  M2020:[{v:'0',d:'Independent'},{v:'1',d:'Able with reminders'},{v:'2',d:'Unable — others manage'},{v:'3',d:'Unable — no meds given'},{v:'NA',d:'No oral meds'}],
+  M2020:[
+    {v:'0', d:'Independent',                  t:'Able to independently take the correct oral medication(s) and proper dosage(s) at the correct times.'},
+    {v:'1', d:'Pre-prepped or daily reminder',t:'Able to take medication(s) at the correct times if (a) individual dosages are prepared in advance by another person; OR (b) given another reminder (i.e., individual telephone calls/verbal cues, daily reminders, etc.).'},
+    {v:'2', d:'Reminded each dose',           t:'Able to take medication(s) at the correct times if given reminders by another person at the appropriate times.'},
+    {v:'3', d:'Administered by another',      t:'Unable to take medication unless administered by another person.'},
+    {v:'NA',d:'No oral meds',                 t:'No oral medications prescribed.'}
+  ],
   M2030:[{v:'0',d:'Independent'},{v:'1',d:'Able with reminders'},{v:'2',d:'Unable — others manage'},{v:'3',d:'Not taking injectables'},{v:'NA',d:'No injectables'}]
 };
 
@@ -842,7 +854,7 @@ const RULES = [
       const cg = mNum('M1700'), m = mNum('M2020');
       if (cg === null || m === null) return null;
       if (cg >= 4 && m === 0)
-        return '<strong>M1700≥4</strong> (no consistent communication or totally dependent) cannot coexist with <strong>M2020=0</strong> (independent oral medication management).';
+        return '<strong>M1700=4</strong> (Totally dependent) cannot coexist with <strong>M2020=0</strong> (independent oral medication management).';
       return null;
     }
   },
@@ -1195,7 +1207,7 @@ const RULES = [
       let any = false;
       for (let i = 0; i < 7; i++) if (isChecked('M1740-checks', i)) { any = true; break; }
       if (!any)
-        return '<strong>M1700≥4</strong> (No consistent communication or totally dependent) with <strong>M1740</strong> nothing checked. Severe cognitive impairment typically presents with observable symptoms — verify or check "None of the above" if truly absent.';
+        return '<strong>M1700=4</strong> (Totally dependent) with <strong>M1740</strong> nothing checked. Severe cognitive impairment typically presents with observable symptoms — verify or check "None of the above" if truly absent.';
       return null;
     }
   },
