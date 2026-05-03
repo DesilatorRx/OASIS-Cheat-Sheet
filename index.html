@@ -100,7 +100,34 @@
   .item-card.full-width { grid-column: 1 / -1; background: var(--white); }
   .item-code { font-family: 'DM Mono', monospace; font-size: 9.5px; font-weight: 500; color: var(--teal); letter-spacing: 0.05em; margin-bottom: 1px; transition: color 0.2s; }
   .item-code.m-code { color: var(--amber); }
+  .item-code.has-tip { cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+  .item-code.has-tip::after {
+    content: 'i'; font-family: 'Fraunces', serif; font-style: italic; font-weight: 700;
+    font-size: 9px; line-height: 1;
+    background: var(--teal); color: white;
+    border-radius: 50%; width: 11px; height: 11px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .item-code.m-code.has-tip::after { background: var(--amber); }
+  .item-code.has-tip.tip-open::after { content: '×'; font-family: 'DM Sans', sans-serif; font-style: normal; font-size: 11px; }
+  .item-code.has-tip:hover { filter: brightness(0.85); }
   .item-label { font-weight: 600; font-size: 10.5px; color: var(--navy); margin-bottom: 5px; line-height: 1.3; }
+  .item-tip {
+    display: none; background: #fffbef; border-left: 3px solid var(--amber);
+    padding: 6px 9px; margin: 0 0 6px; font-size: 9.5px; line-height: 1.45;
+    color: var(--slate); border-radius: 3px;
+  }
+  .item-tip.open { display: block; }
+  .item-tip h5 {
+    font-size: 8.5px; font-weight: 700; color: var(--amber);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin: 6px 0 2px; font-family: 'DM Mono', monospace;
+  }
+  .item-tip h5:first-child { margin-top: 0; }
+  .item-tip p { margin-bottom: 4px; }
+  .item-tip ul { margin: 2px 0 4px 14px; padding: 0; }
+  .item-tip li { margin-bottom: 2px; }
+  .item-tip .tp { font-family: 'DM Mono', monospace; font-size: 8.5px; color: var(--muted); }
 
   .scores { display: flex; flex-wrap: wrap; gap: 3px; }
   .pill { display: inline-flex; flex-direction: column; align-items: center; background: var(--pill-bg); border: 1.5px solid var(--pill-border); border-radius: 5px; padding: 3px 7px; cursor: pointer; min-width: 38px; text-align: center; user-select: none; transition: all 0.12s; }
@@ -407,6 +434,23 @@ const M1740_OPTIONS = [
   'Delusional, paranoid, or false beliefs',
   'None of the above'
 ];
+
+// ══════════════════════════════════════════════════
+// ITEM TIPS — drafted from the OASIS-E Manual, Item Intent + Response-Specific Instructions
+// (verify wording against the latest CMS manual)
+// ══════════════════════════════════════════════════
+const ITEM_TIPS = {
+  M1720: {
+    timepoints: 'SOC, ROC, Discharge',
+    intent: 'Identifies the frequency with which the patient feels anxious. Anxiety includes worry that interferes with learning and normal activities, feelings of being overwhelmed and having difficulty coping, or symptoms of anxiety disorders such as generalized anxiety disorder, panic disorder, or post-traumatic stress disorder. Anxiety also includes apprehension related to anticipated events, such as anxiety in advance of a planned surgery, chemotherapy, or other treatments.',
+    instructions: [
+      'Score the highest frequency observed during the assessment AND/OR reported by the patient or caregiver during the assessment time frame.',
+      'Sources of information include patient observation, patient self-report, and/or report from caregivers or other clinicians.',
+      'Includes apprehension related to anticipated events (upcoming surgery, treatments, procedures, etc.).',
+      'Select <b>NA — Unable to assess</b> only when the patient is unable to communicate (e.g., due to cognition, sedation, intubation) AND no caregiver report is available.'
+    ]
+  }
+};
 
 // ══════════════════════════════════════════════════
 // CONFLICT ENGINE
@@ -1264,6 +1308,33 @@ function renderPills(id, opts, mStyle) {
   opts.forEach(o => c.appendChild(makePill(id, o.v, o.d, mStyle, o.t)));
 }
 
+function renderItemTips() {
+  Object.entries(ITEM_TIPS).forEach(([itemId, tip]) => {
+    const card = document.querySelector(`.item-card[data-item="${itemId}"]`);
+    if (!card) return;
+    const code = card.querySelector('.item-code');
+    const label = card.querySelector('.item-label');
+    if (!code || !label) return;
+    code.classList.add('has-tip');
+
+    const panel = document.createElement('div');
+    panel.className = 'item-tip';
+    let html = '';
+    if (tip.intent)       html += `<h5>Item Intent</h5><p>${tip.intent}</p>`;
+    if (tip.instructions && tip.instructions.length)
+      html += `<h5>Response-Specific Instructions</h5><ul>${tip.instructions.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+    if (tip.timepoints)   html += `<div class="tp">Time Points: ${tip.timepoints}</div>`;
+    panel.innerHTML = html;
+    label.insertAdjacentElement('afterend', panel);
+
+    code.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = panel.classList.toggle('open');
+      code.classList.toggle('tip-open', isOpen);
+    });
+  });
+}
+
 function renderGG0100(id) {
   const c = document.getElementById(id);
   if (!c) return;
@@ -1400,6 +1471,7 @@ renderGGTable('GG0170-body', GG0170_ITEMS, 'GG0170');
 Object.entries(M_ITEMS).forEach(([id,opts]) => renderPills(id, opts, true));
 renderChecks('M1033-checks', M1033_OPTIONS);
 renderChecks('M1740-checks', M1740_OPTIONS);
+renderItemTips();
 
 // Patient field listeners
 ['pt-patient','pt-mrn','pt-dob','pt-physician','pt-agency'].forEach(id => {
