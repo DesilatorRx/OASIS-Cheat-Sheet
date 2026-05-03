@@ -440,6 +440,37 @@ const M1740_OPTIONS = [
 // (verify wording against the latest CMS manual)
 // ══════════════════════════════════════════════════
 const ITEM_TIPS = {
+  M1400: {
+    timepoints: 'SOC, ROC, FU, Discharge',
+    intent: 'Identifies the level of exertion/activity that results in dyspnea or shortness of breath, regardless of the underlying cause (cardiac, pulmonary, anxiety, etc.).',
+    instructions: [
+      'Score the highest level of exertion at which the patient becomes short of breath at the time of the assessment.',
+      'Information may come from observation during the visit, patient self-report, and/or caregiver report.',
+      'If the patient uses oxygen <b>continuously</b>, score the level of dyspnea while wearing oxygen at the prescribed rate.',
+      'If oxygen is used <b>intermittently</b>, score based on the level of dyspnea when oxygen is not in use.',
+      'Select <b>4 — At rest</b> only if the patient is dyspneic without any exertion (during the day or at night).'
+    ]
+  },
+  M1700: {
+    timepoints: 'SOC, ROC, Discharge',
+    intent: "Identifies the patient's current level of alertness, orientation, comprehension, concentration, and immediate memory for simple commands.",
+    instructions: [
+      'Assess the patient\'s actual cognitive functioning at the time of assessment — not past status or projected future status.',
+      'Sources of information include observation, direct interaction with the patient, and caregiver report.',
+      'This item considers the patient\'s overall cognitive ability, not solely orientation to person, place, and time.',
+      'If a standardized cognitive assessment (e.g., BIMS) was completed, use the findings to inform the score.'
+    ]
+  },
+  M1710: {
+    timepoints: 'SOC, ROC, Discharge',
+    intent: 'Identifies the time of day or situations in which the patient experiences confusion, if at all.',
+    instructions: [
+      'Confusion includes inappropriate responses to person, place, time, or situation; disorganized thinking; or behavior that interferes with safety or function.',
+      'Sources of information include observation, patient self-report, and caregiver report.',
+      'Select the <b>highest level of confusion</b> the patient demonstrates.',
+      'Select <b>NA — Patient nonresponsive</b> only when the patient is unable to respond meaningfully (verbally or behaviorally).'
+    ]
+  },
   M1720: {
     timepoints: 'SOC, ROC, Discharge',
     intent: 'Identifies the frequency with which the patient feels anxious. Anxiety includes worry that interferes with learning and normal activities, feelings of being overwhelmed and having difficulty coping, or symptoms of anxiety disorders such as generalized anxiety disorder, panic disorder, or post-traumatic stress disorder. Anxiety also includes apprehension related to anticipated events, such as anxiety in advance of a planned surgery, chemotherapy, or other treatments.',
@@ -448,6 +479,27 @@ const ITEM_TIPS = {
       'Sources of information include patient observation, patient self-report, and/or report from caregivers or other clinicians.',
       'Includes apprehension related to anticipated events (upcoming surgery, treatments, procedures, etc.).',
       'Select <b>NA — Unable to assess</b> only when the patient is unable to communicate (e.g., due to cognition, sedation, intubation) AND no caregiver report is available.'
+    ]
+  },
+  M1740: {
+    timepoints: 'SOC, ROC, Discharge',
+    intent: 'Identifies specific cognitive, behavioral, or psychiatric symptoms associated with significant difficulty coping or potentially unsafe behaviors that have been demonstrated at least once within the past 14 days (or since SOC/ROC, if more recent).',
+    instructions: [
+      '<b>Mark all that apply.</b> If none apply, mark "None of the above."',
+      'Behaviors must be observed by the clinician or reliably reported by the patient or caregiver.',
+      'Includes symptoms regardless of underlying cause (dementia, delirium, psychiatric illness, neurological condition, substance use, etc.).',
+      '"Memory deficit" requires that the deficit results in the need for supervision.',
+      '"Impaired decision-making" includes failure to stop unsafe activities or to perform usual ADLs/IADLs appropriately.'
+    ]
+  },
+  M1745: {
+    timepoints: 'SOC, ROC, FU, Discharge',
+    intent: 'Identifies the frequency at which the patient demonstrates any behavior that is disruptive or unsafe — regardless of cause — including, but not limited to, the behaviors listed in M1740.',
+    instructions: [
+      'Score the frequency of <b>any</b> disruptive or unsafe behavior, not only those listed in M1740.',
+      'Examples include physical/verbal aggression, wandering, resistance to care, inappropriate sexual behavior, or other behaviors posing a safety risk.',
+      'Time frame is the past 14 days (or since SOC/ROC/last assessment).',
+      'Sources of information include observation and caregiver report.'
     ]
   }
 };
