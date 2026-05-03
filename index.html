@@ -367,7 +367,7 @@ const M_ITEMS = {
   M1810:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Needs help — some tasks'},{v:'3',d:'Dependent'}],
   M1820:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Needs help — some tasks'},{v:'3',d:'Dependent'}],
   M1830:[{v:'0',d:'Indep — no equip'},{v:'1',d:'With bath equip'},{v:'2',d:'Help in/out'},{v:'3',d:'Help — bath & in/out'},{v:'4',d:'Help — bath, attendant'},{v:'5',d:'Unable to bathe self'},{v:'6',d:'Dependent — all'}],
-  M1840:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Help — transfer only'},{v:'3',d:'Help — transfer & hygiene'},{v:'4',d:'Total dependence'},{v:'NA',d:'Bedbound/no toilet'}],
+  M1840:[{v:'0',d:'Independent'},{v:'1',d:'With device'},{v:'2',d:'Help — transfer only'},{v:'3',d:'Help — transfer & hygiene'},{v:'4',d:'Total dependence'}],
   M1845:[{v:'0',d:'Independent'},{v:'1',d:'Supplies set up'},{v:'2',d:'Help — hygiene/clothes'},{v:'3',d:'Dependent'}],
   M1850:[{v:'0',d:'Independent'},{v:'1',d:'Min assist / device'},{v:'2',d:'Bears weight, pivots'},{v:'3',d:'Unable — no weight/pivot'},{v:'4',d:'Bedfast — repositions'},{v:'5',d:'Bedfast — total'}],
   M1860:[{v:'0',d:'Independent'},{v:'1',d:'Indep — assistive device'},{v:'2',d:'Supervised ambulation'},{v:'3',d:'Guarded ambulation'},{v:'4',d:'Wheelchair — self'},{v:'5',d:'Wheelchair — assist'},{v:'6',d:'Bedbound / non-amb'}],
@@ -870,17 +870,6 @@ const RULES = [
     }
   },
 
-  { id:'bedbound_toilet_not_na', sev:'error', label:'M1860 Bedbound vs. M1840 Not NA', items:['M1860','M1840'],
-    check() {
-      const am = mNum('M1860');
-      const tl = state['M1840'];
-      if (am !== 6 || !tl) return null;
-      if (tl !== 'NA')
-        return `<strong>M1860=6</strong> (Bedbound, non-ambulatory) requires <strong>M1840=NA</strong> (Bedbound/no toilet). Currently scored ${tl}.`;
-      return null;
-    }
-  },
-
   // ━━ NEW ERRORS — direct contradictions ━━
 
   { id:'sob_bedbound_amb', sev:'error', label:'M1400 SOB at Rest vs. M1860 Ambulation', items:['M1400','M1860'],
@@ -909,16 +898,6 @@ const RULES = [
       if (a===null || t===null) return null;
       if (a===6 && t<=1)
         return '<strong>M1860=6</strong> (Bedbound, non-ambulatory) contradicts <strong>M1850≤1</strong> (independent or minimal-assist transfer). Bedbound status precludes independent transfers.';
-      return null;
-    }
-  },
-
-  { id:'toilet_na_not_bedbound', sev:'error', label:'M1840 NA vs. M1860 Not Bedbound', items:['M1840','M1860'],
-    check() {
-      const tl=state['M1840'], a=mNum('M1860');
-      if (tl !== 'NA' || a===null) return null;
-      if (a < 6)
-        return `<strong>M1840=NA</strong> (Bedbound/no toilet use) requires <strong>M1860=6</strong> (Bedbound). Currently M1860=${a}.`;
       return null;
     }
   },
